@@ -75,5 +75,3 @@ cd EventSphere
 - [ ] Real-time event notifications
 - [ ] Floor plans Integration 
 ```
-
-Your project is looking very official now—ready for the team to dive in! Do you think you'll need a section for API documentation later as the backend grows?
