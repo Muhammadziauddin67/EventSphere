@@ -1,8 +1,4 @@
-That looks like a solid start for a professional README! Since you want to incorporate that high-level firm description and make the instructions crystal clear for your team, here is the final consolidated Markdown.
-
-I’ve combined your company description with the technical setup instructions into one clean, copy-pasteable block.
-
-```markdown
+```
 # EventSphere 🚀
 
 **EventSphere Management** is a leading event management firm specializing in organizing large-scale expos and trade shows across industries. Recognized for solving the challenges inherent in traditional expo management processes, this platform is our full-stack solution to streamline event creation, discovery, and coordination.
@@ -79,9 +75,5 @@ cd EventSphere
 - [ ] Real-time event notifications
 - [ ] Floor plans Integration 
 ```
-
-### Quick Check before you finish:
-1. **Image Link:** Make sure the path `./frontend/vite-project/src/assets/hero.png` is exactly where that image sits in your repo, otherwise it will show a broken image icon.
-2. **Commit:** Since you are editing this on Chrome, remember to hit **"Commit Changes"** at the bottom of the page to make it live.
 
 Your project is looking very official now—ready for the team to dive in! Do you think you'll need a section for API documentation later as the backend grows?
