@@ -1,13 +1,11 @@
 ```
-# EventSphere 🚀
+EventSphere 🚀
 
-**EventSphere Management** is a leading event management firm specializing in organizing large-scale expos and trade shows across industries. Recognized for solving the challenges inherent in traditional expo management processes, this platform is our full-stack solution to streamline event creation, discovery, and coordination.
+EventSphere Management is a leading event management firm specializing in organizing large-scale expos and trade shows across industries. Recognized for solving the challenges inherent in traditional expo management processes, this platform is our full-stack solution to streamline event creation, discovery, and coordination.
 
-This repository contains both the **Express backend** and the **React/Vite frontend**.
-
+This repository contains both the Express backend and the React/Vite frontend.
 ---
-
-## 📂 Project Structure
+📂 Project Structure
 
 To maintain a clean separation of concerns, the project is structured as follows:
 
@@ -16,11 +14,11 @@ To maintain a clean separation of concerns, the project is structured as follows
 
 ---
 
-## 🛠️ Installation & Setup (For Team Members)
+🛠️ Installation & Setup (For Team Members)
 
 Follow these steps exactly to get your local development environment running.
 
-### 1. Clone the Repository
+1. Clone the Repository
 ```bash
 git clone [https://github.com/Muhammadziauddin67/EventSphere.git](https://github.com/Muhammadziauddin67/EventSphere.git)
 cd EventSphere
