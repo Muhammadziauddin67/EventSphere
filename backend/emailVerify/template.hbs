@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background-color: #2c3e50;
+            padding: 30px;
+            text-align: center;
+            color: #ffffff;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+        }
+        .content {
+            padding: 40px 30px;
+            line-height: 1.6;
+        }
+        .content h2 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .btn {
+            background-color: #e67e22;
+            color: white !important;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        .accent {
+            color: #e67e22;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>EventSphere</h1>
+            <p>Revolutionizing the Expo Experience</p>
+        </div>
+
+        <div class="content">
+            <h2>Welcome to the Future of Expos!</h2>
+            <p>Hello,</p>
+            <p>Thank you for joining <strong>EventSphere Management</strong>. We are excited to help you navigate our new digital ecosystem designed for seamless trade shows and expos.</p>
+            
+            <p>To access your dashboard and start managing your events, please verify your email address by clicking the button below:</p>
+
+            <div class="button-container">
+                <a href="{{verificationLink}}" class="btn">Verify My Account</a>
+            </div>
+
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; font-size: 11px; color: #3498db;">{{verificationLink}}</p>
+            
+            <p>Welcome aboard,<br>The EventSphere Team</p>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2026 EventSphere Management. All rights reserved.</p>
+            <p>Connecting Organizers, Exhibitors, and Attendees through Technology.</p>
+        </div>
+    </div>
+</body>
+</html>
