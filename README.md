@@ -4,6 +4,7 @@ EventSphere Management is a leading event management firm specializing in organi
 This repository contains both the Express backend and the React/Vite frontend in a unified workspace.
 
 📂 Project Structure
+---
 To maintain a clean separation of concerns, the project is structured as follows:
 
 /backend: Node.js & Express server, MongoDB models, and authentication middleware.
@@ -11,13 +12,19 @@ To maintain a clean separation of concerns, the project is structured as follows
 /frontend: React application built with Vite, Tailwind CSS, and Shadcn UI.
 
 🛠️ Installation & Setup
+---
+
 Follow these steps exactly to get your local development environment running.
 
 1. Clone the Repository
+---
+
 Bash
 git clone https://github.com/Muhammadziauddin67/EventSphere.git
 cd EventSphere
 2. Backend Configuration
+---
+
 Navigate to the backend folder:
 
 Bash
@@ -35,6 +42,8 @@ Copy the values shared in our group chat and paste them into this file.
 Note: The server will not connect to the database without this file.
 
 3. Frontend Configuration
+---
+
 Navigate to the frontend directory:
 
 Bash
@@ -47,7 +56,10 @@ Start the development server:
 
 Bash
 npm run dev
+
 🔐 Best Practices & Security
+---
+
 Environment Variables: The .env file belongs inside the /backend folder. Never commit your secrets.
 
 Dependency Management: Always ensure you are in the correct folder (/backend or /frontend) before running npm install.
@@ -55,6 +67,8 @@ Dependency Management: Always ensure you are in the correct folder (/backend or 
 Folder Context: The vite-project subfolder has been removed for a cleaner structure. All frontend commands now run directly inside /frontend.
 
 🚀 Roadmap
+---
+
 [ ] Complete Frontend (Shadcn Integration)
 
 [ ] Integration with Google Maps API
