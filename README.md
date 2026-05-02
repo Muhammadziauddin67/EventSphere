@@ -13,10 +13,7 @@ To maintain a clean separation of concerns, the project is structured as follows
 
 🛠️ Installation & Setup
 ---
-<<<<<<< HEAD
 
-=======
->>>>>>> a6978e0cb6c8cdc8bbb697841f10690a8725b3ad
 Follow these steps exactly to get your local development environment running.
 
 1. Clone the Repository
@@ -46,10 +43,7 @@ Note: The server will not connect to the database without this file.
 
 3. Frontend Configuration
 ---
-<<<<<<< HEAD
 
-=======
->>>>>>> a6978e0cb6c8cdc8bbb697841f10690a8725b3ad
 Navigate to the frontend directory:
 
 Bash
@@ -65,12 +59,8 @@ npm run dev
 
 🔐 Best Practices & Security
 ---
-<<<<<<< HEAD
 
 Environment Variables: The .env file belongs inside the /backend folder. Never commit your secrets.
-=======
-Environment Variables: The .env file belongs inside the /backend folder. Never commit your env.
->>>>>>> a6978e0cb6c8cdc8bbb697841f10690a8725b3ad
 
 Dependency Management: Always ensure you are in the correct folder (/backend or /frontend) before running npm install.
 
@@ -78,11 +68,11 @@ Folder Context: The vite-project subfolder has been removed for a cleaner struct
 
 🚀 Roadmap
 ---
-<<<<<<< HEAD
 
-=======
->>>>>>> a6978e0cb6c8cdc8bbb697841f10690a8725b3ad
 [ ] Complete Frontend (Shadcn Integration)
+
 [ ] Integration with Google Maps API
+
 [ ] Real-time event notifications
+
 [ ] Floor plans Integration
