@@ -17,13 +17,15 @@ To maintain a clean separation of concerns, the project is structured as follows
 Follow these steps exactly to get your local development environment running.
 
 1. Clone the Repository
----
+
 
 Bash
 git clone https://github.com/Muhammadziauddin67/EventSphere.git
 cd EventSphere
+
+
 2. Backend Configuration
----
+
 
 Navigate to the backend folder:
 
@@ -42,7 +44,7 @@ Copy the values shared in our group chat and paste them into this file.
 Note: The server will not connect to the database without this file.
 
 3. Frontend Configuration
----
+
 
 Navigate to the frontend directory:
 
