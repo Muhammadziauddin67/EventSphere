@@ -13,7 +13,9 @@ export const verifyMail = async(token, email) => {
     "utf-8"
   )
   const template = handlebars.compile(emailTemplateSource)
-  const htmlToSend = template ({token:encodeURIComponent(token)})
+  const htmlToSend = template({ 
+    verificationLink: `http://localhost:5173/verify/${encodeURIComponent(token)}`
+  })
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth:{

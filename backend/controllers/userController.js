@@ -1,6 +1,8 @@
-import { User } from "../models/userModel.js";
+import { User } from "../models/userModels.js";
 import bcrypt from "bcryptjs"
 import { verifyMail } from "../emailVerify/verifyMail.js";
+import { sendOtpMail } from "../emailVerify/sendOtpMail.js";
+import { Session } from "../models/sessionModel.js"
 import jwt from 'jsonwebtoken'
 
 export const registerUser = async (req, res) => {
@@ -130,7 +132,7 @@ export const loginUser = async (req, res) => {
           message: "Verify Your Account Than Login"
         })
       }
-  
+    }
       const existingSession = await Session.findOne({ userId: user._id });
       if (existingSession) {
         await Session.deleteOne({ userId: user._id })
@@ -149,7 +151,7 @@ export const loginUser = async (req, res) => {
         refreshToken,
         user
       })
-    }
+    
   }catch (error) {
       return res.status(500).json({
         success: false,

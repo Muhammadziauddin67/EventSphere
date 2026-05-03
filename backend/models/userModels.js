@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     isVerified:{type:Boolean, default:false},
     isLoggedIn:{type:Boolean, default:false},
     token:{type:String, default:null},
-    otp:{type:String,required:true},
-    otpExpiry:{type:String,required:true},
+    otp:{type:String,required:null},
+    otpExpiry:{type:String,required:null},
 },{timestamps:true})
 export const User = mongoose.model("User",userSchema)
