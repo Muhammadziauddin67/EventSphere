@@ -33,14 +33,14 @@ cd EventSphere
 Navigate to backend:
 
 ```bash
-db backend
+cd backend
 ```
 
 Install dependencies:
 
 ```bash
-tnpm install
-t```
+npm install
+```
 
 ### Environment Variables
 Create a file named `.env` inside the `/backend` folder and add the required credentials.
@@ -60,15 +60,15 @@ Open a **new terminal** (keep backend running), then:
 Navigate to frontend:
 ```bash
 db frontend
-d```
+```
 Install dependencies:
 ```bash
 tnpm install
-t```
+```
 Start development server:
 ```bash
-tnpm run dev
-t```
+npm run dev
+```
 ---
 ## ⚙️ Final Workflow Summary
 ### Terminal 1 (Backend)
