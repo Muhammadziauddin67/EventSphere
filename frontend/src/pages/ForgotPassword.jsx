@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { getData } from '@/context/userContext'
 import axios from 'axios'
-import { CheckCircle, Loader2 } from 'lucide-react'
+import { CheckCircle, Loader2, Mail  } from 'lucide-react'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -37,90 +37,62 @@ const ForgotPassword = () => {
     }
   }
   return (
-    <div className='relative w-full h-[760px] bg-green-100 overflow-hidden'>
-      <div className='min-h-screen flex flex-col'>
-        {/* Main content */}
-        <div className='flex-1 flex items-center justify-center p-4'>
-          <div className='w-full max-w-md space-y-6'>
-            <div className='text-center space-y-2'>
-              <h1 className='text-3xl font-bold tracking-tight text-green-600'>Reset Your password</h1>
-              <p className='text-muted-foreground'>Enter your email address and we'll send you
-                instructions to reset your password</p>
-            </div>
-            <Card className='bg-white'>
-              <CardHeader className='space-y-1'>
-                <CardTitle className='text-2xl text-center text-green-600'>Forgot Password</CardTitle>
-                <CardDescription className='text-center'>
-                  {
-                    isSubmitted ? "Check your email for reset instructions"
-                      : "Enter your email address to recieve a password reset link"
-                  }
-                </CardDescription>
-              </CardHeader>
-              <CardContent className='space-y-4'>
-                {
-                  error && (
-                    <Alert variant="destructive">
-                      <AlertDescription>{error}</AlertDescription>
-                    </Alert>
-                  )
-                }
-                {
-                  isSubmitted ? (
-                    <div className='py-6 flex flex-col items-center justify-center text-center space-y-4'>
-                      <div className='bg-primary/10 rounded-full p-3'>
-                        <CheckCircle className='h-6 w-6 text-primary' />
-                      </div>
-                      <div className='space-y-2'>
-                        <h3 className='font-medium text-lg'>Check your inbox</h3>
-                        <p className='text-muted-foreground'>We've sent a password reset link to
-                          <span className='font-medium text-foreground'>{email}</span></p>
-                        <p>
-                          If you don't see the email, check your spam folder or{" "}
-                          <button
-                            className='text-primary hover:underline font-medium'
-                            onClick={() => setIsSubmitted(false)}>
-                            try again
-                          </button>
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <form onSubmit={handleForgotPassword} className='space-y-4'>
-                      <div className='space-y-2 relative text-gray-800'>
-                        <Label>Email</Label>
-                        <Input
-                          type='email'
-                          placeholder="Enter your email address"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          disabled={isLoading}
-                        />
-                      </div>
-                      <Button className="w-full bg-green-600 text-white relative hover:bg-green-500 cursor-pointer">
-                        {
-                          isLoading ? (
-                            <>
-                              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
-                              Sending reset link..
-                            </>
-                          ) : ("Send reset link")
-                        }
-                      </Button>
-                    </form>
-                  )
-                }
-              </CardContent>
-              <CardFooter className='flex justify-center'>
-                <p>
-                  Remember your password?{" "}
-                  <Link to={'/login'} className='text-green-600 hover:underline font-medium relative'>Sign in</Link>
-                </p>
-              </CardFooter>
-            </Card>
-          </div>
+    <div style={{ fontFamily: "'Jost', sans-serif" }}
+         className='min-h-screen bg-[#2C3E50] flex items-center justify-center px-4'>
+      <div className='bg-[#f7f6f2] rounded-2xl p-10 w-full max-w-md'>
+
+        <div className='w-16 h-16 rounded-full bg-[#FFA641]/15 flex items-center justify-center mx-auto mb-5'>
+          <Mail className='w-8 h-8 text-[#FFA641]' />
         </div>
+
+        <p className='text-[#FFA641] text-xs font-bold tracking-widest uppercase mb-2 text-center'>
+          Account recovery
+        </p>
+        <h2 className='text-2xl font-bold text-[#2C3E50] mb-2 text-center'>Forgot password?</h2>
+        <p className='text-gray-400 text-sm font-light text-center leading-relaxed mb-8'>
+          Enter your email address and we'll send you an OTP to reset your password.
+        </p>
+
+        <form onSubmit={handleForgotPassword} className='space-y-4'>
+          <div>
+            <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>
+              Email address
+            </label>
+            <input
+              type='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder='you@example.com'
+              required
+              disabled={isLoading}
+              className='w-full h-11 px-4 rounded-lg border border-gray-200 bg-white
+                         text-[#2C3E50] text-sm outline-none
+                         focus:border-[#FFA641] focus:ring-2 focus:ring-[#FFA641]/20
+                         transition-all placeholder:text-gray-300 disabled:opacity-50'
+            />
+          </div>
+
+          <button
+            type='submit'
+            disabled={isLoading}
+            className='w-full h-11 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-60
+                       text-[#2C3E50] font-bold text-sm rounded-lg
+                       flex items-center justify-center gap-2 transition-colors'
+          >
+            {isLoading
+              ? <><Loader2 className='w-4 h-4 animate-spin' /> Sending OTP...</>
+              : 'Send OTP'
+            }
+          </button>
+        </form>
+
+        <p className='text-center text-sm text-gray-400 mt-6'>
+          Remember your password?{' '}
+          <Link to='/login' className='text-[#FFA641] font-semibold hover:underline'>
+            Sign in
+          </Link>
+        </p>
+
       </div>
     </div>
   )

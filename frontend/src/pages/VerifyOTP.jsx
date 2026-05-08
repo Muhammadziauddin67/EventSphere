@@ -57,104 +57,89 @@ const VerifyOTP = () => {
   }
 
   return (
-    <div className='min-h-screen flex flex-col bg-green-100'>
-      {/* Main content */}
-      <div className='flex-1 flex items-center justify-center p-4'>
-        <div className='w-full max-w-md space-y-6'>
-          <div className='text-center space-y-2'>
-            <h1 className='text-3xl font-bold tracking-tight text-green-600'>Verfiy your email</h1>
-            <p className='text-muted-foreground'>We've sent a 6-digit verification code to{" "}
-              <span>{"your email"}</span>
-            </p>
+    <div style={{ fontFamily: "'Jost', sans-serif" }}
+         className='min-h-screen bg-[#2C3E50] flex items-center justify-center px-4'>
+      <div className='bg-[#f7f6f2] rounded-2xl p-10 w-full max-w-md'>
+
+        {isVerified ? (
+          <div className='text-center py-4'>
+            <div className='w-16 h-16 rounded-full bg-[#FFA641]/15 flex items-center justify-center mx-auto mb-4'>
+              <CheckCircle className='w-8 h-8 text-[#FFA641]' />
+            </div>
+            <h2 className='text-xl font-bold text-[#2C3E50] mb-2'>OTP verified!</h2>
+            <p className='text-gray-400 text-sm font-light mb-1'>{successMessage}</p>
+            <div className='flex items-center justify-center gap-2 mt-4 text-gray-300 text-xs'>
+              <Loader2 className='w-3 h-3 animate-spin' /> Redirecting...
+            </div>
           </div>
-          <Card className='shadow-lg'>
-            <CardHeader className='space-y-1'>
-              <CardTitle className='text-2xl text-center text-green-600'>Enter verification code</CardTitle>
-              <CardDescription className='text-center'>
-                {
-                  isVerified
-                  ? "Code verified successfully! Redirecting..."
-                  : "Enter the 6-digit code sent to your email"
+        ) : (
+          <>
+            <p className='text-[#FFA641] text-xs font-bold tracking-widest uppercase mb-2'>Password reset</p>
+            <h2 className='text-2xl font-bold text-[#2C3E50] mb-1'>Enter your OTP</h2>
+            <p className='text-gray-400 text-sm font-light mb-8'>
+              We sent a 6-digit code to <span className='font-semibold text-[#2C3E50]'>{email}</span>
+            </p>
+
+            {error && (
+              <div className='bg-red-50 border border-red-100 text-red-500 text-sm rounded-lg px-4 py-3 mb-6'>
+                {error}
+              </div>
+            )}
+
+            {/* OTP boxes */}
+            <div className='flex justify-between gap-2 mb-8'>
+              {otp.map((digit, index) => (
+                <input
+                  key={index}
+                  type='text'
+                  inputMode='numeric'
+                  value={digit}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(index, e)}
+                  maxLength={1}
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  className='w-12 h-14 text-center text-xl font-bold rounded-lg
+                             border-2 border-gray-200 bg-white text-[#2C3E50] outline-none
+                             focus:border-[#FFA641] focus:ring-2 focus:ring-[#FFA641]/20
+                             transition-all'
+                />
+              ))}
+            </div>
+
+            <div className='space-y-3'>
+              <button
+                onClick={handleVerify}
+                disabled={isLoading || otp.some(d => d === '')}
+                className='w-full h-11 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-50
+                           text-[#2C3E50] font-bold text-sm rounded-lg
+                           flex items-center justify-center gap-2 transition-colors'
+              >
+                {isLoading
+                  ? <><Loader2 className='w-4 h-4 animate-spin' /> Verifying...</>
+                  : 'Verify code'
                 }
-              </CardDescription>
-            </CardHeader>
-            <CardContent className='space-y-6'>
-              {
-                error && (
-                  <Alert variant="destructive">
-                    <AlertDescription>{error}</AlertDescription>
-                  </Alert>
-                )
-              }
-              {successMessage && <p className='text-green-500 text-sm mb-3 text-center'>{successMessage}</p>}
-              {
-                isVerified ? (
-                  <div className='py-6 flex flex-col items-center justify-center text-center space-y-4'>
-                    <div className='bg-primary/10 rounded-full p-3'>
-                      <CheckCircle className='h-6 w-6 text-primary' />
-                    </div>
-                    <div className='space-y-2'>
-                      <h3 className='font-medium text-lg'>Verification successfull</h3>
-                      <p className='text-muted-foreground'>Your email has been verified
-                        . you'll be redirected to reset your password</p>
-                    </div>
-                    <div className='flex items-center space-x-2'>
-                      <Loader2 className='h-4 w-4 animate-spin' />
-                      <span className='text-sm text-muted-foreground'>Redirecting...</span>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* OTP Input */}
-                    <div className='flex justify-between mb-6'>
-                      {
-                        otp.map((digit, index) => (
-                          <Input
-                            key={index}
-                            type="text"
-                            value={digit}
-                            onChange={(e) => handleChange(index, e.target.value)}
-                            maxLength={1}
-                            ref={(el) => (inputRefs.current[index] = el)}
-                            className="w-12 h-12 text-center text-xl font-bold"
-                          />
-                        ))
-                      }
-                    </div>
-                    {/* Action Buttons */}
-                    <div className='space-y-3'>
-                      <Button
-                        onClick={handleVerify}
-                        disabled={isLoading || otp.some((digit) => digit === "")}
-                        className='bg-green-600 w-full'>
-                        {isLoading ? <><Loader2 className='mr-2 h-4 w-4 animate-spin' />Verifiying</> : "Verify code"}
-                      </Button>
-                      <Button variant='outline'
-                        onClick={clearOtp}
-                        className='w-full bg-transparent'
-                        disabled={isLoading || isVerified}
-                      >
-                        <RotateCcw className='mr-2 h-4 w-4' />
-                        Clear
-                      </Button>
-                    </div>
-                  </>
-                )
-              }
-            </CardContent>
-            <CardFooter className='flex justify-center'>
-              <p className='text-sm text-muted-foreground'>
-                Wrong email?{" "}
-                <Link to={'/forgot-password'} className='text-green-600 hover:underline font-medium'>Go back</Link>
-              </p>
-            </CardFooter>
-          </Card>
-          <div className='text-center text-xs text-muted-foreground'>
-            <p>
-              Fot testing purposes, use code: <span className='font-mono font-medium'>123456</span>
+              </button>
+
+              <button
+                onClick={clearOtp}
+                disabled={isLoading}
+                className='w-full h-11 bg-white border border-gray-200 hover:border-gray-300
+                           text-[#2C3E50] font-semibold text-sm rounded-lg
+                           flex items-center justify-center gap-2 transition-colors'
+              >
+                <RotateCcw className='w-4 h-4' /> Clear
+              </button>
+            </div>
+
+            <p className='text-center text-sm text-gray-400 mt-6'>
+              Wrong email?{' '}
+              <Link to='/forgot-password' className='text-[#FFA641] font-semibold hover:underline'>
+                Go back
+              </Link>
             </p>
-          </div>
-        </div>
+          </>
+        )}
+
       </div>
     </div>
   )
