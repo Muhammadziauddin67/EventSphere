@@ -29,7 +29,12 @@ const Login = () => {
         setUser(res.data.user)
         localStorage.setItem('accessToken', res.data.accessToken)
         toast.success(res.data.message)
-        navigate('/')
+        // redirect based on role
+        if (res.data.user.role === 'admin') 
+          navigate('/admin')
+        else if (res.data.user.role === 'exhibitor') 
+          navigate('/exhibitor')
+        else navigate('/')
       }
     } catch (error) {
       const msg = error.response?.data?.message
@@ -49,21 +54,21 @@ const Login = () => {
         {/* Watermark globe */}
         <div className='absolute right-[-40px] top-1/2 -translate-y-1/2 opacity-[0.05] pointer-events-none'>
           <svg width="500" height="500" viewBox="0 0 520 520" fill="none">
-            <circle cx="260" cy="260" r="240" stroke="white" strokeWidth="2"/>
-            <ellipse cx="260" cy="260" rx="100" ry="240" stroke="white" strokeWidth="1.5"/>
-            <ellipse cx="260" cy="260" rx="180" ry="240" stroke="white" strokeWidth="1"/>
-            <line x1="20" y1="260" x2="500" y2="260" stroke="white" strokeWidth="1.5"/>
-            <line x1="40" y1="160" x2="480" y2="160" stroke="white" strokeWidth="1"/>
-            <line x1="40" y1="360" x2="480" y2="360" stroke="white" strokeWidth="1"/>
-            <rect x="175" y="195" width="170" height="130" rx="8" stroke="white" strokeWidth="2"/>
-            <line x1="175" y1="260" x2="345" y2="260" stroke="white" strokeWidth="1.2"/>
-            <line x1="215" y1="195" x2="215" y2="325" stroke="white" strokeWidth="1"/>
-            <circle cx="345" cy="195" r="18" fill="white"/>
+            <circle cx="260" cy="260" r="240" stroke="white" strokeWidth="2" />
+            <ellipse cx="260" cy="260" rx="100" ry="240" stroke="white" strokeWidth="1.5" />
+            <ellipse cx="260" cy="260" rx="180" ry="240" stroke="white" strokeWidth="1" />
+            <line x1="20" y1="260" x2="500" y2="260" stroke="white" strokeWidth="1.5" />
+            <line x1="40" y1="160" x2="480" y2="160" stroke="white" strokeWidth="1" />
+            <line x1="40" y1="360" x2="480" y2="360" stroke="white" strokeWidth="1" />
+            <rect x="175" y="195" width="170" height="130" rx="8" stroke="white" strokeWidth="2" />
+            <line x1="175" y1="260" x2="345" y2="260" stroke="white" strokeWidth="1.2" />
+            <line x1="215" y1="195" x2="215" y2="325" stroke="white" strokeWidth="1" />
+            <circle cx="345" cy="195" r="18" fill="white" />
           </svg>
         </div>
 
         <Link to='/' className='flex items-center gap-2.5 no-underline'>
-                <img src={logo} alt="EventSphere" className='h-9 w-auto' />
+          <img src={logo} alt="EventSphere" className='h-9 w-auto' />
         </Link>
 
         <div>
@@ -95,7 +100,7 @@ const Login = () => {
           {/* Mobile logo */}
           <div className='lg:hidden mb-8'>
             <Link to='/'>
-               <img src={logo} alt="EventSphere" className='h-9 w-auto' />
+              <img src={logo} alt="EventSphere" className='h-9 w-auto' />
             </Link>
           </div>
 

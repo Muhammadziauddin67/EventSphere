@@ -38,7 +38,7 @@ const Hero = () => {
                     from booth allocation to real-time attendee engagement.
                 </p>
                 <div className='flex gap-4 flex-wrap'>
-                    <Button onClick={() => navigate('/expos')}
+                    <Button onClick={() => navigate('/events')}
                         className='bg-[#FFA641] text-[#2C3E50] font-bold text-base
                                        h-12 px-7 hover:bg-[#ffb55a]'>
                         Explore Expos <ArrowRight className='ml-2 w-4 h-4' />

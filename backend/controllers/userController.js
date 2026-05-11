@@ -2,7 +2,7 @@ import { User } from "../models/userModels.js";
 import bcrypt from "bcryptjs"
 import { verifyMail } from "../emailVerify/verifyMail.js";
 import { sendOtpMail } from "../emailVerify/sendOtpMail.js";
-import { Session } from "../models/sessionModel.js"
+import { AuthSession } from "../models/authSessionModel.js"
 import jwt from 'jsonwebtoken'
 
 export const registerUser = async (req, res) => {
@@ -140,12 +140,12 @@ export const loginUser = async (req, res) => {
         })
       }
     }
-      const existingSession = await Session.findOne({ userId: user._id });
+      const existingSession = await AuthSession.findOne({ userId: user._id });
       if (existingSession) {
-        await Session.deleteOne({ userId: user._id })
+        await AuthSession.deleteOne({ userId: user._id })
       }
   
-      await Session.create({ userId: user._id })
+      await AuthSession.create({ userId: user._id })
       const accessToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "10d" })
       const refreshToken = jwt.sign({ id: user._id }, process.env.SECRET_KEY, { expiresIn: "30d" })
   
@@ -170,7 +170,7 @@ export const loginUser = async (req, res) => {
 export const logoutUser = async (req, res) => {
   try {
       const userId = req.userId;
-      await Session.deleteMany({ userId });
+      await AuthSession.deleteMany({ userId });
       await User.findByIdAndUpdate(userId, { isLoggedIn: false })
       return res.status(200).json({
           success: true,

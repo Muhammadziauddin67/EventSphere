@@ -1,4 +1,4 @@
-import { LogOut, CalendarDays, User } from 'lucide-react'
+import { User, CalendarDays, Bookmark, Ticket, LogOut, BookOpen } from 'lucide-react'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
@@ -40,7 +40,7 @@ const Navbar = () => {
         <nav style={{ fontFamily: "'Jost', sans-serif" }}
             className='bg-[#2C3E50] px-8 h-16 flex items-center justify-between sticky top-0 z-50'>
 
-          
+
             {/* Logo */}
             <Link to='/' className='flex items-center gap-2.5 no-underline'>
                 <img src={logo} alt="EventSphere" className='h-9 w-auto' />
@@ -48,11 +48,16 @@ const Navbar = () => {
 
             {/* Nav links */}
             <ul className='flex gap-8 items-center text-[0.95rem] font-medium list-none'>
-                {['Expos', 'Exhibitors', 'Schedule', 'About'].map(link => (
-                    <li key={link}>
-                        <Link to={`/${link.toLowerCase()}`}
-                            className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>
-                            {link}
+                {[
+                    { label: 'Expos', path: '/events?type=expo' },
+                    { label: 'Concerts', path: '/events?type=concert' },
+                    { label: 'Sports', path: '/events?type=sports' },
+                    { label: 'Blog', path: '/blog' },
+                    { label: 'About', path: '/about' },
+                ].map(({ label, path }) => (
+                    <li key={label}>
+                        <Link to={path} className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>
+                            {label}
                         </Link>
                     </li>
                 ))}
@@ -73,8 +78,34 @@ const Navbar = () => {
                         <DropdownMenuContent align="end" className='w-44'>
                             <DropdownMenuLabel>{user.username}</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem><User className='w-4 h-4 mr-2' />Profile</DropdownMenuItem>
-                            <DropdownMenuItem><CalendarDays className='w-4 h-4 mr-2' />My Events</DropdownMenuItem>
+                            {user?.role === 'attendee' && (
+                                <>
+                                    <DropdownMenuItem onClick={() => navigate('/bookmarks')}>
+                                        <Bookmark className='w-4 h-4 mr-2' /> Bookmarks
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
+                                        <Ticket className='w-4 h-4 mr-2' /> My Tickets
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate('/my-schedule')}>
+                                        <CalendarDays className='w-4 h-4 mr-2' /> My Schedule
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                            {user.role === 'admin' && (
+                                <DropdownMenuItem onClick={() => navigate('/admin')}>
+                                    <User className='w-4 h-4 mr-2' /> Admin Dashboard
+                                </DropdownMenuItem>
+                            )}
+
+                            {user.role === 'exhibitor' && (
+                                <DropdownMenuItem onClick={() => navigate('/exhibitor')}>
+                                    <User className='w-4 h-4 mr-2' /> Exhibitor Portal
+                                </DropdownMenuItem>
+                            )}
+
+                            <DropdownMenuItem onClick={() => navigate('/profile')}>
+                                <User className='w-4 h-4 mr-2' /> Profile
+                            </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={logoutHandler} className='text-red-500'>
                                 <LogOut className='w-4 h-4 mr-2' />Logout
