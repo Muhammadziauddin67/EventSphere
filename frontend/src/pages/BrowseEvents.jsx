@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import { CalendarDays, MapPin, Search, Music, Trophy, Building2, Bookmark } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getData } from '@/context/userContext'
 import { toast } from 'sonner'
+import { EventCardSkeleton } from '@/components/ui/Skeleton'
 
 
 
@@ -24,8 +25,11 @@ const BrowseEvents = () => {
   const { user } = getData()
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const location = useLocation()
   const [search, setSearch] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [type, setType] = useState('all')
   const [city, setCity] = useState('')
   const [cities, setCities] = useState([])
@@ -50,10 +54,19 @@ const BrowseEvents = () => {
     finally { setLoading(false) }
   }
 
-  useEffect(() => { fetchEvents() }, [type, city])
+  useEffect(() => {
+    const params = new URLSearchParams(location.search)
+    const t = params.get('type')
+    setType(t || 'all')
+  }, [location.search])
+  useEffect(() => {
+    fetchEvents()
+  }, [type, city, dateFilter])
 
   const handleSearch = (e) => {
     if (e.key === 'Enter') fetchEvents()
+    if (dateFrom) params.append('dateFrom', dateFrom)
+    if (dateTo) params.append('dateTo', dateTo)
   }
 
   const handleBookmark = async (e, expoId) => {
@@ -105,15 +118,18 @@ const BrowseEvents = () => {
           {/* Date filter */}
           <div className='flex items-center gap-3 px-4 py-3 md:py-0 border-b md:border-b-0 md:border-r border-gray-200'>
             <CalendarDays className='w-4 h-4 text-gray-400 flex-shrink-0' />
-            <select value={dateFilter} onChange={e => setDateFilter(e.target.value)}
-              className='text-sm text-[#2C3E50] outline-none bg-transparent cursor-pointer min-w-[110px]'>
-              <option value=''>Any date</option>
-              <option value='today'>Today</option>
-              <option value='week'>This week</option>
-              <option value='month'>This month</option>
-              <option value='3months'>Next 3 months</option>
-            </select>
+            <div className='flex items-center gap-2 px-4 py-3 md:py-0 border-b md:border-b-0 md:border-r border-gray-200'>
+              <CalendarDays className='w-4 h-4 text-gray-400 flex-shrink-0' />
+              <input type='date' value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                className='text-sm text-[#2C3E50] outline-none bg-transparent min-w-[110px]' />
+              <span className='text-gray-300 text-xs'>→</span>
+              <input type='date' value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                className='text-sm text-[#2C3E50] outline-none bg-transparent min-w-[110px]' />
+            </div>
           </div>
+
           <button onClick={fetchEvents}
             className='bg-[#FFA641] text-[#2C3E50] font-bold text-sm px-6
                        hover:bg-[#ffb55a] transition-colors'>
@@ -139,13 +155,13 @@ const BrowseEvents = () => {
         </div>
 
         {loading ? (
-          <div className='flex items-center justify-center h-64'>
-            <div className='w-8 h-8 border-4 border-[#FFA641] border-t-transparent rounded-full animate-spin' />
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5'>
+            {Array(8).fill(0).map((_, i) => <EventCardSkeleton key={i} />)}
           </div>
         ) : events.length === 0 ? (
           <div className='bg-white rounded-xl border border-gray-100 py-20 text-center min-h-[400px] flex items-center justify-center'>
-          <p className='text-gray-400'>No events found. Try adjusting your filters.</p>
-        </div>
+            <p className='text-gray-400'>No events found. Try adjusting your filters.</p>
+          </div>
         ) : (
           <>
             <p className='text-gray-400 text-sm mb-5'>{events.length} events found</p>

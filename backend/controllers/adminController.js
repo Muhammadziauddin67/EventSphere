@@ -4,6 +4,9 @@ import { Application } from "../models/applicationModel.js"
 import { Session } from "../models/sessionModel.js"
 import { Analytics } from "../models/analyticsModel.js"
 import { Message } from "../models/messageModel.js"
+import { Feedback } from "../models/feedbackModel.js"
+import { ExhibitorProfile } from "../models/exhibitorProfileManagement.js"
+import { User }  from "../models/userModels.js"
 
 
 export const createExpo = async (req, res) => {
@@ -273,6 +276,90 @@ export const sendAdminMessage = async (req, res) => {
             senderId: req.userId, receiverId, content
         })
         return res.status(201).json({ success: true, data: message })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getFeedback = async (req, res) => {
+    try {
+        const feedback = await Feedback.find()
+            .populate("userId", "username email")
+            .populate("expoId", "title")
+            .sort({ createdAt: -1 })
+        return res.status(200).json({ success: true, data: feedback })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const respondToFeedback = async (req, res) => {
+    try {
+        const { status, response } = req.body
+        const feedback = await Feedback.findByIdAndUpdate(
+            req.params.id,
+            { status, response },
+            { new: true }
+        )
+        if (!feedback) return res.status(404).json({ success: false, message: "Feedback not found" })
+        return res.status(200).json({ success: true, message: "Feedback updated", data: feedback })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find().select('-password -otp -otpExpiry -token')
+            .sort({ createdAt: -1 })
+        return res.status(200).json({ success: true, data: users })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const updateUserRole = async (req, res) => {
+    try {
+        const { role } = req.body
+        const user = await User.findByIdAndUpdate(
+            req.params.id, { role }, { new: true }
+        ).select('-password')
+        if (!user) return res.status(404).json({ success: false, message: "User not found" })
+        return res.status(200).json({ success: true, message: "Role updated", data: user })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const deleteUser = async (req, res) => {
+    try {
+        if (req.params.id === req.userId.toString())
+            return res.status(400).json({ success: false, message: "Cannot delete yourself" })
+        await User.findByIdAndDelete(req.params.id)
+        return res.status(200).json({ success: true, message: "User deleted" })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getExhibitorProfiles = async (req, res) => {
+    try {
+        const profiles = await ExhibitorProfile.find()
+            .populate("userId", "username email")
+        return res.status(200).json({ success: true, data: profiles })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const updateExhibitorProfile = async (req, res) => {
+    try {
+        const profile = await ExhibitorProfile.findOneAndUpdate(
+            { userId: req.params.userId },
+            { ...req.body },
+            { new: true, upsert: true }
+        )
+        return res.status(200).json({ success: true, message: "Profile updated", data: profile })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
     }

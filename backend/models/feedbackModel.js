@@ -6,6 +6,7 @@ const feedbackSchema = new mongoose.Schema({
     type:     { type: String, enum: ["suggestion", "issue", "general"], default: "general" },
     message:  { type: String, required: true },
     status:   { type: String, enum: ["open", "reviewed", "resolved"], default: "open" },
+    response: { type: String, default: null },
 }, { timestamps: true })
 
 export const Feedback = mongoose.model("Feedback", feedbackSchema)

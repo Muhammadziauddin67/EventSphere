@@ -5,11 +5,13 @@ import { toast } from 'sonner'
 
 const ManageExhibitors = () => {
   const [applications, setApplications] = useState([])
-  const [loading,      setLoading]      = useState(true)
-  const [updating,     setUpdating]     = useState(null)
-  const [filter,       setFilter]       = useState('all')
-  const token   = localStorage.getItem('accessToken')
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(null)
+  const [filter, setFilter] = useState('all')
+  const token = localStorage.getItem('accessToken')
   const headers = { Authorization: `Bearer ${token}` }
+  const [boothsMap, setBoothsMap] = useState({})
+  const [assigning, setAssigning] = useState(null)
 
   const fetchApplications = async () => {
     try {
@@ -17,6 +19,21 @@ const ManageExhibitors = () => {
       setApplications(res.data.data)
     } catch (error) { console.log(error) }
     finally { setLoading(false) }
+  }
+  const fetchBooths = async (expoId) => {
+    const res = await axios.get(`http://localhost:8000/admin/booths/${expoId}`, { headers })
+    return res.data.data.filter(b => b.status === 'available')
+  }
+
+  const handleAssignBooth = async (applicationId, boothId) => {
+    try {
+      setAssigning(applicationId)
+      await axios.put(`http://localhost:8000/admin/applications/${applicationId}/booth`,
+        { boothId }, { headers })
+      toast.success('Booth assigned!')
+      fetchApplications()
+    } catch (e) { toast.error('Failed to assign booth') }
+    finally { setAssigning(null) }
   }
 
   useEffect(() => { fetchApplications() }, [])
@@ -54,10 +71,10 @@ const ManageExhibitors = () => {
         <div className='flex gap-1 bg-white border border-gray-100 rounded-lg p-1'>
           {['all', 'pending', 'approved', 'rejected'].map(f => (
             <button key={f} onClick={() => setFilter(f)}
-                    className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize transition-colors
+              className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize transition-colors
                       ${filter === f
-                        ? 'bg-[#2C3E50] text-white'
-                        : 'text-gray-400 hover:text-[#2C3E50]'}`}>
+                  ? 'bg-[#2C3E50] text-white'
+                  : 'text-gray-400 hover:text-[#2C3E50]'}`}>
               {f}
             </button>
           ))}
@@ -73,7 +90,7 @@ const ManageExhibitors = () => {
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
           {filtered.map(app => (
             <div key={app._id}
-                 className='bg-white rounded-xl border border-gray-100 p-5'>
+              className='bg-white rounded-xl border border-gray-100 p-5'>
               <div className='flex items-start justify-between mb-3'>
                 <div className='flex items-center gap-3'>
                   <div className='w-10 h-10 rounded-full bg-[#2C3E50] flex items-center
@@ -87,8 +104,8 @@ const ManageExhibitors = () => {
                 </div>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0
                   ${app.status === 'approved' ? 'bg-green-50 text-green-600'
-                  : app.status === 'rejected' ? 'bg-red-50 text-red-500'
-                  : 'bg-orange-50 text-orange-500'}`}>
+                    : app.status === 'rejected' ? 'bg-red-50 text-red-500'
+                      : 'bg-orange-50 text-orange-500'}`}>
                   {app.status}
                 </span>
               </div>
@@ -124,6 +141,38 @@ const ManageExhibitors = () => {
                       ? <Loader2 className='w-3.5 h-3.5 animate-spin' />
                       : <><XCircle className='w-3.5 h-3.5' /> Reject</>}
                   </button>
+                  {app.status === 'approved' && !app.boothId && (
+                    <div className='mt-3 pt-3 border-t border-gray-100'>
+                      <p className='text-xs text-gray-400 mb-2'>Assign a booth:</p>
+                      <div className='flex gap-2'>
+                        <select onFocus={async () => {
+                          if (!boothsMap[app.expoId?._id]) {
+                            const booths = await fetchBooths(app.expoId?._id)
+                            setBoothsMap(prev => ({ ...prev, [app.expoId?._id]: booths }))
+                          }
+                        }}
+                          id={`booth-select-${app._id}`}
+                          className='flex-1 h-8 px-2 text-xs rounded-lg border border-gray-200 outline-none
+                 focus:border-[#FFA641]'>
+                          <option value=''>Select booth...</option>
+                          {(boothsMap[app.expoId?._id] || []).map(b => (
+                            <option key={b._id} value={b._id}>Booth {b.boothNumber}</option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={() => {
+                            const sel = document.getElementById(`booth-select-${app._id}`)
+                            if (sel.value) handleAssignBooth(app._id, sel.value)
+                            else toast.error('Select a booth first')
+                          }}
+                          disabled={assigning === app._id}
+                          className='h-8 px-3 bg-[#2C3E50] text-white text-xs font-bold rounded-lg
+                   hover:bg-[#FFA641] hover:text-[#2C3E50] transition-colors'>
+                          Assign
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

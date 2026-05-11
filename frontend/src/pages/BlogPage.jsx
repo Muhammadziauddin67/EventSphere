@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import { CalendarDays, ArrowRight } from 'lucide-react'
+import { CalendarDays, ArrowRight, MapPin } from 'lucide-react'
 
 const posts = [
   {
@@ -60,16 +61,17 @@ const posts = [
 ]
 
 const categoryColors = {
-  'Industry News':    'bg-blue-50 text-blue-600',
-  'Tips & Tricks':    'bg-purple-50 text-purple-600',
-  'Event Spotlight':  'bg-amber-50 text-amber-600',
-  'Sports':           'bg-green-50 text-green-600',
-  'Concerts':         'bg-pink-50 text-pink-600',
+  'Industry News': 'bg-blue-50 text-blue-600',
+  'Tips & Tricks': 'bg-purple-50 text-purple-600',
+  'Event Spotlight': 'bg-amber-50 text-amber-600',
+  'Sports': 'bg-green-50 text-green-600',
+  'Concerts': 'bg-pink-50 text-pink-600',
   'Platform Updates': 'bg-orange-50 text-orange-600',
 }
 
 const BlogPage = () => {
   const navigate = useNavigate()
+  const [events, setEvents] = useState([])
   const [activeCategory, setActiveCategory] = useState('All')
   const categories = ['All', ...new Set(posts.map(p => p.category))]
 
@@ -78,8 +80,12 @@ const BlogPage = () => {
     : posts.filter(p => p.category === activeCategory)
 
   const featured = posts.find(p => p.featured)
-  const rest     = filtered.filter(p => !p.featured || activeCategory !== 'All')
-
+  const rest = filtered.filter(p => !p.featured || activeCategory !== 'All')
+  useEffect(() => {
+    axios.get('http://localhost:8000/attendee/expos')
+      .then(res => setEvents(res.data.data.slice(0, 4)))
+      .catch(console.log)
+  }, [])
   return (
     <div style={{ fontFamily: "'Jost', sans-serif" }} className='bg-[#f7f6f2] min-h-screen'>
 
@@ -104,8 +110,8 @@ const BlogPage = () => {
                           hover:opacity-95 transition-opacity relative overflow-hidden'>
             <div className='absolute right-0 top-0 bottom-0 w-64 opacity-5 flex items-center'>
               <svg viewBox="0 0 300 300" fill="none" className='w-full h-full'>
-                <circle cx="150" cy="150" r="140" stroke="white" strokeWidth="2"/>
-                <ellipse cx="150" cy="150" rx="60" ry="140" stroke="white" strokeWidth="1.5"/>
+                <circle cx="150" cy="150" r="140" stroke="white" strokeWidth="2" />
+                <ellipse cx="150" cy="150" rx="60" ry="140" stroke="white" strokeWidth="1.5" />
               </svg>
             </div>
             <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full mb-4
@@ -132,11 +138,11 @@ const BlogPage = () => {
         <div className='flex gap-2 mb-8 flex-wrap'>
           {categories.map(cat => (
             <button key={cat} onClick={() => setActiveCategory(cat)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-semibold
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold
                                 border transition-colors
                                 ${activeCategory === cat
-                                  ? 'bg-[#2C3E50] text-white border-[#2C3E50]'
-                                  : 'bg-white text-gray-500 border-gray-200 hover:border-[#2C3E50]'}`}>
+                  ? 'bg-[#2C3E50] text-white border-[#2C3E50]'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-[#2C3E50]'}`}>
               {cat}
             </button>
           ))}
@@ -146,7 +152,7 @@ const BlogPage = () => {
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
           {rest.map(post => (
             <div key={post.id}
-                 className='bg-white rounded-xl border border-gray-100 p-6
+              className='bg-white rounded-xl border border-gray-100 p-6
                             cursor-pointer hover:border-[#FFA641] transition-colors'>
               <span className={`inline-block text-xs font-bold px-3 py-1 rounded-full mb-4
                                ${categoryColors[post.category]}`}>
@@ -173,9 +179,78 @@ const BlogPage = () => {
             </div>
           ))}
         </div>
+    
       </div>
-           {/* ── Footer ── */}
-           <footer className='bg-[#1a2a38] px-16 pt-12 pb-6'>
+          {/* Featured Expos */}
+        
+      
+           
+        <section className='bg-[#f7f6f2] py-20 px-16'>
+          <div className='w-full '>
+          <div className='bg-[#2C3E50] rounded-2xl p-8 mb-10 transition-opacity relative overflow-hidden'>
+          <p className='text-[#FFA641] text-xs font-bold tracking-widest uppercase mb-2 py-5'>Upcoming Events</p>
+            <h2 className='text-3xl font-bold mb-2 text-white'>Featured Events</h2>
+            <p className='text-gray-400 font-light mb-10 py-3'>Discover world-class exhibitions and trade shows happening right now</p>
+            </div>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 '>
+              {events.map(expo => (
+                <div key={expo._id}
+                  tabIndex={0}
+                  onClick={() => navigate(`/event/${expo._id}`)}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/event/${expo._id}`)}
+                  className='bg-white border border-gray-200 rounded-xl overflow-hidden
+              cursor-pointer hover:border-[#FFA641] transition-colors'>
+
+                  <div className='h-32 bg-[#2C3E50] relative flex items-center justify-center'>
+                    {expo.badge && (
+                      <span className='absolute top-2.5 left-2.5 bg-[#FFA641] text-[#2C3E50]
+                      text-[0.65rem] font-bold px-3 py-1 rounded-full uppercase tracking-wide'>
+                        {expo.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className='p-4'>
+                    <p className='text-[#FFA641] text-[0.7rem] font-bold uppercase tracking-wider mb-1'>
+                      {expo.category}
+                    </p>
+
+                    <p className='text-[#2C3E50] font-semibold text-sm mb-3'>
+                      {expo.title}
+                    </p>
+
+                    <div className='flex gap-3 text-gray-400 text-xs'>
+                      <span className='flex items-center gap-1'>
+                        <CalendarDays className='w-3 h-3' />
+                        {new Date(expo.date).toLocaleDateString()}
+                      </span>
+
+                      <span className='flex items-center gap-1'>
+                        <MapPin className='w-3 h-3' />
+                        {expo.location}
+                      </span>
+                    </div>
+
+                    <div className='flex justify-between items-center mt-3 pt-3 border-t border-gray-100'>
+                      <span className='text-xs text-gray-400'>
+                        {expo.attendees} registered
+                      </span>
+
+                      <button
+                        onClick={() => navigate(`/event/${expo._id}`)}
+                        className='bg-[#2C3E50] text-white text-xs font-semibold px-3 py-1.5
+                      rounded-md hover:bg-[#FFA641] hover:text-[#2C3E50] transition-colors'>
+                        View Expo
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      {/* ── Footer ── */}
+      <footer className='bg-[#1a2a38] px-16 pt-12 pb-6'>
         <div className='w-full'>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-white/8'>
             <div>

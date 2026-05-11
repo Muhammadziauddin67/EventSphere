@@ -5,28 +5,31 @@ import { toast } from 'sonner'
 import { getData } from '@/context/userContext'
 
 const ExhibitorProfile = () => {
-  const { user }          = getData()
+  const { user } = getData()
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState({
-    company: '', description: '', website: '',
+    logo: '', company: '', description: '', website: '',
     products: '', phone: '', address: ''
   })
-  const token   = localStorage.getItem('accessToken')
+  const token = localStorage.getItem('accessToken')
   const headers = { Authorization: `Bearer ${token}` }
+  const [uploading, setUploading] = useState(false)
+  const [logo, setLogo] = useState('')
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const res = await axios.get('http://localhost:8000/exhibitor/profile', { headers })
         const p = res.data.data
+        setLogo(p.logo || '')
         setForm({
-          company:     p.company     || '',
+          company: p.company || '',
           description: p.description || '',
-          website:     p.website     || '',
-          products:    p.products?.join(', ') || '',
-          phone:       p.contactInfo?.phone   || '',
-          address:     p.contactInfo?.address || '',
+          website: p.website || '',
+          products: p.products?.join(', ') || '',
+          phone: p.contactInfo?.phone || '',
+          address: p.contactInfo?.address || '',
         })
       } catch (e) { console.log(e) }
       finally { setLoading(false) }
@@ -38,10 +41,10 @@ const ExhibitorProfile = () => {
     try {
       setSaving(true)
       await axios.put('http://localhost:8000/exhibitor/profile', {
-        company:     form.company,
+        company: form.company,
         description: form.description,
-        website:     form.website,
-        products:    form.products.split(',').map(p => p.trim()).filter(Boolean),
+        website: form.website,
+        products: form.products.split(',').map(p => p.trim()).filter(Boolean),
         contactInfo: { phone: form.phone, address: form.address }
       }, { headers })
       toast.success('Profile updated successfully')
@@ -89,32 +92,67 @@ const ExhibitorProfile = () => {
       {/* Company profile */}
       <div className='bg-white rounded-2xl border border-gray-100 p-6 space-y-4'>
         <h3 className='font-bold text-[#2C3E50]'>Company Profile</h3>
-
+        <div>
+          <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>Company Logo</label>
+          <div className='flex items-center gap-4'>
+            {logo ? (
+              <img src={logo} alt='Logo' className='w-16 h-16 rounded-xl object-cover border border-gray-200' />
+            ) : (
+              <div className='w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 text-xs'>
+                No logo
+              </div>
+            )}
+            <label className='cursor-pointer'>
+              <span className='text-xs bg-[#2C3E50] text-white font-bold px-4 py-2 rounded-lg
+                       hover:bg-[#FFA641] hover:text-[#2C3E50] transition-colors'>
+                {uploading ? 'Uploading...' : 'Upload Logo'}
+              </span>
+              <input type='file' accept='image/*' className='hidden'
+                onChange={async (e) => {
+                  const file = e.target.files[0]
+                  if (!file) return
+                  const formData = new FormData()
+                  formData.append('logo', file)
+                  setUploading(true)
+                  try {
+                    const res = await axios.post(
+                      'http://localhost:8000/exhibitor/profile/logo',
+                      formData,
+                      { headers: { ...headers, 'Content-Type': 'multipart/form-data' } }
+                    )
+                    setLogo(res.data.logo)
+                    toast.success('Logo uploaded!')
+                  } catch (e) { toast.error('Upload failed') }
+                  finally { setUploading(false) }
+                }} />
+            </label>
+          </div>
+        </div>
         {[
-          { label: 'Company Name',   key: 'company',     type: 'text',  placeholder: 'Your company name' },
-          { label: 'Website',        key: 'website',     type: 'url',   placeholder: 'https://yourcompany.com' },
+          { label: 'Company Name', key: 'company', type: 'text', placeholder: 'Your company name' },
+          { label: 'Website', key: 'website', type: 'url', placeholder: 'https://yourcompany.com' },
           { label: 'Products / Services', key: 'products', type: 'text', placeholder: 'Comma separated: AI, Cloud, IoT' },
-          { label: 'Phone',          key: 'phone',       type: 'tel',   placeholder: '+1 234 567 8900' },
-          { label: 'Address',        key: 'address',     type: 'text',  placeholder: 'Company address' },
+          { label: 'Phone', key: 'phone', type: 'tel', placeholder: '+1 234 567 8900' },
+          { label: 'Address', key: 'address', type: 'text', placeholder: 'Company address' },
         ].map(({ label, key, type, placeholder }) => (
           <div key={key}>
             <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>{label}</label>
             <input type={type} placeholder={placeholder} value={form[key]}
-                   onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                   className={inputClass} />
+              onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+              className={inputClass} />
           </div>
         ))}
 
         <div>
           <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>Description</label>
           <textarea rows={4} value={form.description}
-                    onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                    placeholder='Tell attendees about your company...'
-                    className={`${inputClass} h-auto py-3 resize-none`} />
+            onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+            placeholder='Tell attendees about your company...'
+            className={`${inputClass} h-auto py-3 resize-none`} />
         </div>
 
         <button onClick={handleSave} disabled={saving}
-                className='w-full h-11 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-60
+          className='w-full h-11 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-60
                            text-[#2C3E50] font-bold text-sm rounded-lg
                            flex items-center justify-center gap-2 transition-colors'>
           {saving

@@ -100,7 +100,7 @@ const Home = () => {
             {testimonials.map(t => (
               <div key={t.name} className='bg-white/5 border border-white/10 rounded-xl p-6'>
                 <p className='text-[#FFA641] mb-3 text-sm'>★★★★★</p>
-                <p className='text-white/70 text-sm mb-5'>"${t.quote}"</p>
+                <p className='text-white/70 text-sm mb-5'>"{t.quote}"</p>
 
                 <div className='flex items-center gap-3'>
                   <div className='w-9 h-9 rounded-full bg-[#FFA641] flex items-center justify-center text-[#2C3E50] font-bold text-sm'>

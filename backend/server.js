@@ -6,6 +6,9 @@ import adminRoute from "./routes/adminRoutes.js"
 import exhibitorRoute from "./routes/exhibitorRoutes.js"
 import attendeeRoute from "./routes/attendeeRoutes.js"
 import cors from "cors"
+import { startReminderCron } from "./reminderCron.js"
+import { fileURLToPath } from 'url'
+import path from 'path'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -18,6 +21,9 @@ app.use("/admin", adminRoute)
 app.use('/user',userRoute)
 app.use("/exhibitor", exhibitorRoute)
 app.use("/attendee", attendeeRoute)
+startReminderCron()
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 app.listen(PORT, ()=>{
     connectDB()
     console.log(`Server is listening on Port number: ${PORT}`)

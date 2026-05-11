@@ -26,16 +26,25 @@ import Messages from './pages/exhibitor/Messages'
 import ExhibitorProfile from './pages/exhibitor/ExhibitorProfile'
 import ExhibitorRoute from './components/ui/ExhibitorRoute'
 import BrowseEvents from './pages/BrowseEvents'
-import EventDetail  from './pages/EventDetail'
-import Bookmarks    from './pages/Bookmarks'
-import MyTickets    from './pages/MyTickets'
-import MySchedule   from './pages/MySchedule'
+import EventDetail from './pages/EventDetail'
+import Bookmarks from './pages/Bookmarks'
+import MyTickets from './pages/MyTickets'
+import MySchedule from './pages/MySchedule'
 import PaymentPage from './pages/PaymentPage'
-import ProfilePage  from './pages/ProfilePage'
-import AboutPage    from './pages/AboutPage'
-import BlogPage     from './pages/BlogPage'
+import ProfilePage from './pages/ProfilePage'
+import AboutPage from './pages/AboutPage'
+import BlogPage from './pages/BlogPage'
+import NotFound from './pages/NotFound'
+import ExhibitorDetail from './pages/ExhibitorDetail'
+import FeedbackPage from './pages/FeedbackPage'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import ChatPage from './pages/ChatPage'
+import ManageExhibitorProfiles from './pages/admin/ManageExhibitorProfiles'
+import FeedbackHub from './pages/admin/FeedbackHub'
+import ManageUsers from './pages/admin/ManageUsers'
 
 const router = createBrowserRouter([
+  { path: '*', element: <NotFound /> },
   {
     path: '/',
     element: <ProtectedRoute><Navbar /><Home /> </ProtectedRoute>
@@ -88,10 +97,14 @@ const router = createBrowserRouter([
     path: '/my-schedule',
     element: <ProtectedRoute><Navbar /><MySchedule /></ProtectedRoute>
   },
+  { path: '/chat', element: <ProtectedRoute><><Navbar /><ChatPage /></></ProtectedRoute> },
   { path: '/payment', element: <ProtectedRoute><><Navbar /><PaymentPage /></></ProtectedRoute> },
-  { path: '/profile',  element: <ProtectedRoute><><Navbar /><ProfilePage /></></ProtectedRoute> },
-{ path: '/about',    element: <><Navbar /><AboutPage /></> },
-{ path: '/blog',     element: <><Navbar /><BlogPage /></>  },
+  { path: '/privacy', element: <><Navbar /><PrivacyPolicy /></> },
+  { path: '/profile', element: <ProtectedRoute><><Navbar /><ProfilePage /></></ProtectedRoute> },
+  { path: '/about', element: <><Navbar /><AboutPage /></> },
+  { path: '/blog', element: <><Navbar /><BlogPage /></> },
+  { path: '/feedback', element: <><Navbar /><FeedbackPage /></> },
+  { path: '/exhibitor-detail/:applicationId', element: <><Navbar /><ExhibitorDetail /></> },
   {
     path: '/admin',
     element: <AdminRoute><AdminLayout /></AdminRoute>,
@@ -99,7 +112,10 @@ const router = createBrowserRouter([
       { index: true, element: <AdminDashboard /> },
       { path: 'expos', element: <ManageExpos /> },
       { path: 'exhibitors', element: <ManageExhibitors /> },
+      { path: 'exhibitor-profiles', element: <ManageExhibitorProfiles /> },
       { path: 'schedule', element: <ManageSchedule /> },
+      { path: 'feedback', element: <FeedbackHub /> },
+      { path: 'users', element: <ManageUsers /> },
       { path: 'analytics', element: <Analytics /> },
       { path: 'messages', element: <AdminMessages /> },
     ]

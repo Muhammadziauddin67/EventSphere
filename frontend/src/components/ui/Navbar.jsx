@@ -1,4 +1,4 @@
-import { User, CalendarDays, Bookmark, Ticket, LogOut, BookOpen } from 'lucide-react'
+import { User, CalendarDays, Bookmark, Ticket, LogOut, BookOpen, MessageSquare, MessageCircleQuestion } from 'lucide-react'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import logo from '@/assets/eventsphere_logo.png'
 const Navbar = () => {
     const { user, setUser } = getData()
     const navigate = useNavigate()
+    const [mobileOpen, setMobileOpen] = useState(false)
     const accessToken = localStorage.getItem("accessToken")
 
     const logoutHandler = async () => {
@@ -38,7 +39,7 @@ const Navbar = () => {
 
     return (
         <nav style={{ fontFamily: "'Jost', sans-serif" }}
-            className='bg-[#2C3E50] px-8 h-16 flex items-center justify-between sticky top-0 z-50'>
+        className="bg-[#2C3E50] px-4 md:px-8 h-16 flex items-center justify-between sticky top-0 z-50 relative">
 
 
             {/* Logo */}
@@ -47,24 +48,19 @@ const Navbar = () => {
             </Link>
 
             {/* Nav links */}
-            <ul className='flex gap-8 items-center text-[0.95rem] font-medium list-none'>
-                {[
-                    { label: 'Expos', path: '/events?type=expo' },
-                    { label: 'Concerts', path: '/events?type=concert' },
-                    { label: 'Sports', path: '/events?type=sports' },
-                    { label: 'Blog', path: '/blog' },
-                    { label: 'About', path: '/about' },
-                ].map(({ label, path }) => (
-                    <li key={label}>
-                        <Link to={path} className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>
-                            {label}
-                        </Link>
-                    </li>
-                ))}
+            <ul className='hidden md:flex gap-8 items-center text-[0.95rem] font-medium list-none'>
+                <li><Link to='/events?type=expo' className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>Expos</Link></li>
+                <li><Link to='/events?type=concert' className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>Concerts</Link></li>
+                <li><Link to='/events?type=sports' className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>Sports</Link></li>
+                <li><Link to='/blog' className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>Blog</Link></li>
+                <li><Link to='/about' className='text-white/70 hover:text-[#FFA641] transition-colors no-underline'>About</Link></li>
             </ul>
-
+       
             {/* Right side */}
             <div className='flex items-center gap-3'>
+            <button className="md:hidden text-white" onClick={() => setMobileOpen(prev => !prev)}>
+                ☰
+            </button>
                 {user ? (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -89,6 +85,12 @@ const Navbar = () => {
                                     <DropdownMenuItem onClick={() => navigate('/my-schedule')}>
                                         <CalendarDays className='w-4 h-4 mr-2' /> My Schedule
                                     </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate('/chat')}>
+                                        <MessageSquare className='w-4 h-4 mr-2' /> Chat
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => navigate('/feedback')}>
+                                        <MessageCircleQuestion className='w-4 h-4 mr-2' /> Feedback
+                                    </DropdownMenuItem>
                                 </>
                             )}
                             {user.role === 'admin' && (
@@ -106,6 +108,7 @@ const Navbar = () => {
                             <DropdownMenuItem onClick={() => navigate('/profile')}>
                                 <User className='w-4 h-4 mr-2' /> Profile
                             </DropdownMenuItem>
+
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={logoutHandler} className='text-red-500'>
                                 <LogOut className='w-4 h-4 mr-2' />Logout
@@ -128,6 +131,17 @@ const Navbar = () => {
                     </>
                 )}
             </div>
+            {mobileOpen && (
+                <div className="md:hidden absolute top-16 left-0 w-full bg-[#2C3E50] border-t border-white/10 px-6 py-4 flex flex-col gap-4">
+
+                    <Link to="/events?type=expo" className="text-white/70">Expos</Link>
+                    <Link to="/events?type=concert" className="text-white/70">Concerts</Link>
+                    <Link to="/events?type=sports" className="text-white/70">Sports</Link>
+                    <Link to="/blog" className="text-white/70">Blog</Link>
+                    <Link to="/about" className="text-white/70">About</Link>
+
+                </div>
+            )}
         </nav>
     )
 }

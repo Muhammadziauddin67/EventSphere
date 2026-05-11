@@ -1,15 +1,19 @@
-import { Expo }     from "../models/expoModel.js"
-import { Session }  from "../models/sessionModel.js"
-import { Booth }    from "../models/boothModel.js"
+import { Expo } from "../models/expoModel.js"
+import { Session } from "../models/sessionModel.js"
+import { Booth } from "../models/boothModel.js"
 import { Application } from "../models/applicationModel.js"
 import { Feedback } from "../models/feedbackModel.js"
-import { Ticket }   from "../models/ticketModel.js"
+import { Ticket } from "../models/ticketModel.js"
 import { Bookmark } from "../models/bookmarkModel.js"
+import { sendTicketConfirmation } from "../emailVerify/ticketConfirmMail.js"
+import { User } from "../models/userModels.js"
+import { ExhibitorProfile } from "../models/exhibitorProfileManagement.js"
+import { Message } from "../models/messageModel.js"
 
 // ── Browse ────────────────────────────────────────────────────────────────
 export const getPublishedExpos = async (req, res) => {
     try {
-        const { type, city, category, search, dateFilter } = req.query
+        const { type, city, category, search, dateFrom, dateTo } = req.query
 
         const filter = { status: "published" }
 
@@ -26,33 +30,10 @@ export const getPublishedExpos = async (req, res) => {
                 { location: new RegExp(search, "i") },
             ]
         }
-
-        if (dateFilter) {
-            const now = new Date()
-
-            if (dateFilter === "today") {
-                const end = new Date()
-                end.setHours(23, 59, 59, 999)
-                filter.date = { $gte: now, $lte: end }
-            }
-
-            if (dateFilter === "week") {
-                const end = new Date()
-                end.setDate(end.getDate() + 7)
-                filter.date = { $gte: now, $lte: end }
-            }
-
-            if (dateFilter === "month") {
-                const end = new Date()
-                end.setMonth(end.getMonth() + 1)
-                filter.date = { $gte: now, $lte: end }
-            }
-
-            if (dateFilter === "3months") {
-                const end = new Date()
-                end.setMonth(end.getMonth() + 3)
-                filter.date = { $gte: now, $lte: end }
-            }
+        if (dateFrom || dateTo) {
+            filter.date = {}
+            if (dateFrom) filter.date.$gte = new Date(dateFrom)
+            if (dateTo)   filter.date.$lte = new Date(new Date(dateTo).setHours(23,59,59))
         }
 
         const expos = await Expo.find(filter).sort({ date: 1 })
@@ -69,10 +50,10 @@ export const searchEvents = async (req, res) => {
         const expos = await Expo.find({
             status: "published",
             $or: [
-                { title:    new RegExp(q, "i") },
-                { city:     new RegExp(q, "i") },
-                { artist:   new RegExp(q, "i") },
-                { team:     new RegExp(q, "i") },
+                { title: new RegExp(q, "i") },
+                { city: new RegExp(q, "i") },
+                { artist: new RegExp(q, "i") },
+                { team: new RegExp(q, "i") },
                 { category: new RegExp(q, "i") },
             ]
         }).sort({ date: 1 }).limit(20)
@@ -106,8 +87,8 @@ export const getExpoExhibitors = async (req, res) => {
         const applications = await Application.find({
             expoId: req.params.expoId, status: "approved"
         })
-        .populate("exhibitorId", "username email")
-        .populate("boothId",     "boothNumber position")
+            .populate("exhibitorId", "username email")
+            .populate("boothId", "boothNumber position")
         return res.status(200).json({ success: true, data: applications })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
@@ -147,12 +128,24 @@ export const bookTicket = async (req, res) => {
 
         const bookingRef = `ES-${Date.now()}-${Math.floor(Math.random() * 9999)}`
         const ticket = await Ticket.create({
-            userId:   req.userId,
+            userId: req.userId,
             expoId,
             tierName,
-            price:    tier.price * qty,
+            price: tier.price * qty,
             quantity: qty,
             bookingRef,
+
+        })
+        const user = await User.findById(req.userId)
+        await sendTicketConfirmation(user.email, {
+            username: user.username,
+            eventTitle: expo.title,
+            tierName,
+            quantity: qty,
+            price: tier.price * qty,
+            bookingRef,
+            date: expo.date,
+            location: expo.location,
         })
         return res.status(201).json({ success: true, message: "Ticket booked!", data: ticket })
     } catch (error) {
@@ -166,8 +159,8 @@ export const getMyTickets = async (req, res) => {
             userId: req.userId,
             status: { $ne: "cancelled" }
         })
-        .populate("expoId", "title date location city type")
-        .sort({ createdAt: -1 })
+            .populate("expoId", "title date location city type")
+            .sort({ createdAt: -1 })
 
         return res.status(200).json({ success: true, data: tickets })
     } catch (error) {
@@ -265,6 +258,101 @@ export const submitFeedback = async (req, res) => {
         if (!message) return res.status(400).json({ success: false, message: "Message required" })
         await Feedback.create({ userId: req.userId, expoId, type, message })
         return res.status(201).json({ success: true, message: "Feedback submitted!" })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getExhibitorDetail = async (req, res) => {
+    try {
+        const app = await Application.findById(req.params.applicationId)
+            .populate("exhibitorId", "username email")
+            .populate("boothId",     "boothNumber size position")
+            .populate("expoId",      "title date location")
+
+        if (!app) return res.status(404).json({ success: false, message: "Exhibitor not found" })
+
+        const profile = await ExhibitorProfile.findOne({ userId: app.exhibitorId._id })
+
+        return res.status(200).json({ success: true, data: { ...app.toObject(), profile } })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getChatContacts = async (req, res) => {
+    try {
+        const tickets = await Ticket.find({ userId: req.userId, status: 'confirmed' })
+            .populate('expoId')
+
+        const expoIds = [...new Set(
+            tickets.map(t => t.expoId?._id?.toString()).filter(Boolean)
+        )]
+
+        const applications = await Application.find({
+            expoId: { $in: expoIds },
+            status: 'approved'
+        })
+            .populate('exhibitorId', 'username email')
+            .populate('expoId', 'title date location')
+            .populate('boothId', 'boothNumber position')
+
+        const contacts = applications.map(a => ({
+            _id: a.exhibitorId._id,
+            username: a.exhibitorId.username,
+            email: a.exhibitorId.email,
+
+            // IMPORTANT: fix missing fields for frontend
+            company: a.exhibitorId?.company || "",
+            event: a.expoId ? {
+                title: a.expoId.title,
+                date: a.expoId.date,
+                location: a.expoId.location
+            } : null,
+            booth: a.boothId ? {
+                name: a.boothId.boothNumber,
+                position: a.boothId.position
+            } : null
+        }))
+
+        return res.status(200).json({ success: true, data: contacts })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const sendChatMessage = async (req, res) => {
+    try {
+        const { receiverId, content } = req.body
+        if (!receiverId || !content)
+            return res.status(400).json({ success: false, message: "Required fields missing" })
+
+        const message = await Message.create({
+            senderId: req.userId, receiverId, content
+        })
+        return res.status(201).json({ success: true, data: message })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getChatMessages = async (req, res) => {
+    try {
+        const messages = await Message.find({
+            $or: [
+                { senderId: req.userId,        receiverId: req.params.userId },
+                { senderId: req.params.userId, receiverId: req.userId }
+            ]
+        })
+        .populate('senderId',   'username role')
+        .populate('receiverId', 'username role')
+        .sort({ createdAt: 1 })
+
+        await Message.updateMany(
+            { senderId: req.params.userId, receiverId: req.userId, isRead: false },
+            { isRead: true }
+        )
+        return res.status(200).json({ success: true, data: messages })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
     }

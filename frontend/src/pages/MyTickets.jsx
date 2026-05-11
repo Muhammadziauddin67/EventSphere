@@ -3,6 +3,7 @@ import axios from 'axios'
 import { CalendarDays, MapPin, Ticket } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { TicketSkeleton } from '@/components/ui/Skeleton'
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState([])
@@ -12,6 +13,7 @@ const MyTickets = () => {
   const headers = { Authorization: `Bearer ${token}` }
   const [cancelling, setCancelling] = useState(null)
   const [confirmCancel, setConfirmCancel] = useState(null)
+
 
   useEffect(() => {
     const fetch = async () => {
@@ -26,17 +28,17 @@ const MyTickets = () => {
   const handleCancel = async (ticketId) => {
     try {
       setCancelling(ticketId)
-  
+
       await axios.put(
         `http://localhost:8000/attendee/tickets/${ticketId}/cancel`,
         {},
         { headers }
       )
-  
+
       toast.success('Booking cancelled')
-  
+
       setTickets(prev => prev.filter(t => t._id !== ticketId))
-  
+
       setConfirmCancel(null)
     } catch (e) {
       console.log(e.response?.data)
@@ -46,8 +48,8 @@ const MyTickets = () => {
     }
   }
   if (loading) return (
-    <div className='flex items-center justify-center h-64'>
-      <div className='w-8 h-8 border-4 border-[#FFA641] border-t-transparent rounded-full animate-spin' />
+    <div className='space-y-4'>
+      {Array(3).fill(0).map((_, i) => <TicketSkeleton key={i} />)}
     </div>
   )
 
@@ -71,23 +73,20 @@ const MyTickets = () => {
       ) : (
         <div className='space-y-4'>
           {tickets.map(ticket => (
-            <div key={ticket._id} className='bg-[#2C3E50] rounded-xl px-5 py-4 flex-shrink-0 sm:min-w-[120px] flex sm:flex-col items-center justify-center text-center gap-3 sm:gap-0'>
+            <div key={ticket._id} className='bg-white rounded-xl border border-gray-100 p-4 flex flex-col sm:flex-row gap-4'>
               {/* Ticket stub design */}
-              <div className='bg-[#2C3E50] rounded-xl px-5 py-4 flex-shrink-0 min-w-[120px]
-                              flex flex-col items-center justify-center text-center'>
-                <p className='text-[#FFA641] text-xs font-bold uppercase tracking-wider mb-1'>
-                  {ticket.tierName}
-                </p>
-                <p className='text-white text-xl font-bold'>${ticket.price}</p>
-                <p className='text-white/40 text-xs mt-1'>
-                  {ticket.quantity > 1 ? `× ${ticket.quantity}` : '1 ticket'}
-                </p>
+              <div className='bg-[#2C3E50] rounded-xl px-4 py-3 flex sm:flex-col items-center
+                  sm:items-center justify-between sm:justify-center text-center
+                  gap-4 sm:gap-1 sm:flex-shrink-0 sm:min-w-[100px]'>
+                <p className='text-[#FFA641] text-xs font-bold uppercase'>{ticket.tierName}</p>
+                <p className='text-white text-lg font-bold'>${ticket.price}</p>
+                <p className='text-white/40 text-xs'>{ticket.quantity} ticket{ticket.quantity > 1 ? 's' : ''}</p>
               </div>
 
-              <div className='flex-1'>
-                <div className='flex items-start justify-between'>
+              <div className='flex-1 min-w-0'>
+                <div className='flex items-start justify-between gap-2 flex-wrap'>
                   <div>
-                    <p className='font-bold text-[#2C3E50] text-base mb-1'>
+                    <p className='font-bold text-[#2C3E50]'>
                       {ticket.expoId?.title}
                     </p>
                     <div className='flex flex-col gap-1 text-xs text-gray-400 mb-3'>
@@ -112,10 +111,10 @@ const MyTickets = () => {
                   </span>
                 </div>
 
-                <div className='flex items-center justify-between pt-3 border-t border-gray-100'>
+                <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 pt-3 border-t gap-2'>
                   <div>
                     <p className='text-xs text-gray-400'>Booking reference</p>
-                    <p className='text-xs font-mono font-bold text-[#2C3E50]'>{ticket.bookingRef}</p>
+                    <p className='text-xs font-mono font-bold text-[#2C3E50] break-all'>{ticket.bookingRef}</p>
                   </div>
                   <button
                     onClick={() => navigate(`/event/${ticket.expoId?._id}`)}

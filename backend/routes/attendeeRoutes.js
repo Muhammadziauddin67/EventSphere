@@ -6,7 +6,7 @@ import {
     bookTicket, getMyTickets,
     toggleBookmark, getMyBookmarks, checkBookmark,
     registerForSession, getMyRegistrations,
-    submitFeedback, searchEvents, cancelTicket
+    submitFeedback, searchEvents, cancelTicket, getExhibitorDetail, getChatContacts, sendChatMessage, getChatMessages
 } from "../controllers/attendeeController.js"
 
 const router = express.Router()
@@ -29,5 +29,11 @@ router.get("/bookmarks/:expoId/check",       isAuthenticated, checkBookmark)
 router.post("/sessions/:sessionId/register", isAuthenticated, registerForSession)
 router.get("/my-registrations",              isAuthenticated, getMyRegistrations)
 router.post("/feedback",                     isAuthenticated, submitFeedback)
+router.get("/exhibitors/:applicationId", getExhibitorDetail)
+
+router.get("/chat/contacts",        isAuthenticated, getChatContacts)
+router.post("/chat/message",        isAuthenticated, sendChatMessage)
+router.get("/chat/:userId",         isAuthenticated, getChatMessages)
+
 
 export default router

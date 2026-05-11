@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, CalendarDays, Users, BarChart2, Clock, MessageSquare, LogOut, Menu, X } from 'lucide-react'
+import { LayoutDashboard, CalendarDays, Users, Users2, BarChart2, Clock, MessageSquare, LogOut, Menu, X,  UserCog ,MessageCircleQuestion  } from 'lucide-react'
 import { getData } from '@/context/userContext'
 import axios from 'axios'
 import { toast } from 'sonner'
@@ -11,9 +11,12 @@ const navItems = [
   { label: 'Dashboard',         path: '/admin',              icon: LayoutDashboard },
   { label: 'Manage Expos',      path: '/admin/expos',        icon: CalendarDays    },
   { label: 'Manage Exhibitors', path: '/admin/exhibitors',   icon: Users           },
+  { label: 'Profiles',          path: '/admin/exhibitor-profiles', icon: Users2    }, 
   { label: 'Schedule',          path: '/admin/schedule',     icon: Clock           },
+  { label: 'Users',              path: '/admin/users',       icon: UserCog         },
   { label: 'Analytics',         path: '/admin/analytics',    icon: BarChart2       },
   { label: 'Messages',          path: '/admin/messages',     icon: MessageSquare   },
+  { label: 'Feedback Hub',       path: '/admin/feedback',          icon: MessageCircleQuestion   },
 ]
 
 const AdminLayout = () => {

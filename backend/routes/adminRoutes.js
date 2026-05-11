@@ -6,7 +6,7 @@ import {
     getApplications, updateApplicationStatus, assignBooth,
     createSession, getSessions, updateSession, deleteSession,
     getAnalytics, generateBooths, getBooths,
-    getAdminMessages, getAdminConversation, sendAdminMessage
+    getAdminMessages, getAdminConversation, sendAdminMessage, getFeedback, respondToFeedback , getAllUsers , updateUserRole, deleteUser , getExhibitorProfiles, updateExhibitorProfile
 } from "../controllers/adminController.js"
 
 const router = express.Router()
@@ -35,5 +35,15 @@ router.get("/analytics/:expoId",   getAnalytics)
 router.get("/messages",              getAdminMessages)
 router.get("/messages/:userId",      getAdminConversation)
 router.post("/messages",             sendAdminMessage)
+
+router.get("/feedback",              getFeedback)
+router.put("/feedback/:id",          respondToFeedback)
+
+router.get("/users",              getAllUsers)
+router.put("/users/:id/role",     updateUserRole)
+router.delete("/users/:id",       deleteUser)
+
+router.get("/exhibitor-profiles",        getExhibitorProfiles)
+router.put("/exhibitor-profiles/:userId", updateExhibitorProfile)
 
 export default router

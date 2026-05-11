@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import axios from 'axios'
 import { getData } from '@/context/userContext'
 import logo from '@/assets/eventsphere_logo.png'
+import { loginSchema } from '@/validators/schemas'
 
 const Login = () => {
   const { setUser } = getData()
@@ -25,14 +26,21 @@ const Login = () => {
       const res = await axios.post('http://localhost:8000/user/login', formData, {
         headers: { 'Content-Type': 'application/json' }
       })
+      const result = loginSchema.safeParse(formData)
+      if (!result.success) {
+        const errors = result.error.flatten().fieldErrors
+        const firstError = Object.values(errors)[0]?.[0]
+        return toast.error(firstError)
+      }
       if (res.data.success) {
         setUser(res.data.user)
         localStorage.setItem('accessToken', res.data.accessToken)
+        localStorage.setItem('refreshToken', res.data.refreshToken)
         toast.success(res.data.message)
         // redirect based on role
-        if (res.data.user.role === 'admin') 
+        if (res.data.user.role === 'admin')
           navigate('/admin')
-        else if (res.data.user.role === 'exhibitor') 
+        else if (res.data.user.role === 'exhibitor')
           navigate('/exhibitor')
         else navigate('/')
       }

@@ -338,3 +338,26 @@ export const createAdmin = async (req, res) => {
       return res.status(500).json({ success: false, message: error.message })
   }
 }
+export const refreshToken = async (req, res) => {
+  try {
+      const { refreshToken } = req.body
+      if (!refreshToken)
+          return res.status(401).json({ success: false, message: "Refresh token required" })
+
+      jwt.verify(refreshToken, process.env.SECRET_KEY, async (err, decoded) => {
+          if (err)
+              return res.status(401).json({ success: false, message: "Invalid or expired refresh token" })
+
+          const user = await User.findById(decoded.id)
+          if (!user)
+              return res.status(404).json({ success: false, message: "User not found" })
+
+          const newAccessToken = jwt.sign({ id: user._id, role: user.role },
+              process.env.SECRET_KEY, { expiresIn: "10d" })
+
+          return res.status(200).json({ success: true, accessToken: newAccessToken })
+      })
+  } catch (error) {
+      return res.status(500).json({ success: false, message: error.message })
+  }
+}

@@ -1,13 +1,14 @@
 import express from "express"
 import { isAuthenticated } from "../middleware/isAuthenticated.js"
 import { isExhibitor } from "../middleware/isExhibitor.js"
+import { upload } from "../middleware/upload.js"
 import {
     applyForExpo, getMyApplications, getAvailableExpos,
     updateProfile, getMyProfile,
     getMyBooth, updateBoothDetails,
     sendMessage, getMyMessages, getConversation,
     getContacts,
-    getExpoBooths
+    getExpoBooths, uploadLogo
 } from "../controllers/exhibitorController.js"
 
 const router = express.Router()
@@ -34,5 +35,6 @@ router.post("/messages",             sendMessage)
 router.get("/messages",              getMyMessages)
 router.get("/messages/:userId",      getConversation)
 router.get("/contacts",              getContacts)
+router.post("/profile/logo", upload.single('logo'), uploadLogo)
 
 export default router
