@@ -70,6 +70,7 @@ const ManageExpos = () => {
   )
 
   return (
+    
     <div>
       {/* Header */}
       <div className='flex items-center justify-between mb-6'>
@@ -148,9 +149,11 @@ const ManageExpos = () => {
 
       {/* Create/Edit Modal */}
       {showModal && (
-        <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4'>
+ <div className='fixed inset-0 bg-black/40 flex items-end md:items-center
+ justify-center z-50 px-0 md:px-4'>
           <div  style={{ fontFamily: "'Jost', sans-serif" }}
-  className='bg-white rounded-2xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto'>
+  className='bg-white rounded-t-2xl md:rounded-2xl p-6 md:p-8 w-full
+  md:max-w-lg max-h-[90vh] overflow-y-auto'>
             <div className='flex items-center justify-between mb-6'>
               <h3 className='text-lg font-bold text-[#2C3E50]'>
                 {editing ? 'Edit Expo' : 'Create Expo'}
@@ -362,7 +365,7 @@ const ManageExpos = () => {
                 <X className='w-5 h-5' />
               </button>
             </div>
-            <FloorPlan expoId={floorPlanExpo._id} mode='view' />
+            <FloorPlan expoId={floorPlanExpo._id} mode='view' eventType={floorPlanExpo.type} />
           </div>
         </div>
       )}

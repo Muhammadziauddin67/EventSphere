@@ -17,6 +17,8 @@ const Navbar = () => {
     const navigate = useNavigate()
     const [mobileOpen, setMobileOpen] = useState(false)
     const accessToken = localStorage.getItem("accessToken")
+    const [alerts, setAlerts] = useState([])
+const [showAlerts, setShowAlerts] = useState(false)
 
     const logoutHandler = async () => {
         try {
@@ -26,7 +28,8 @@ const Navbar = () => {
             if (res.data.success) {
                 setUser(null)
                 toast.success(res.data.message)
-                localStorage.clear()
+                localStorage.removeItem('accessToken')
+                localStorage.removeItem('refreshToken')
                 navigate('/login')
             }
         } catch (error) {

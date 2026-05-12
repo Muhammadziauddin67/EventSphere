@@ -6,17 +6,20 @@ const AboutPage = () => {
   const navigate = useNavigate()
 
   const values = [
-    { icon: Globe,  title: 'Global Reach',       desc: 'Connecting organizers, exhibitors and attendees across 50+ countries.' },
-    { icon: Users,  title: 'Community First',     desc: 'Built around the needs of every stakeholder in the event ecosystem.' },
-    { icon: Zap,    title: 'Real-time Platform',  desc: 'Live updates, instant booking confirmations and seamless communication.' },
-    { icon: Shield, title: 'Secure & Reliable',   desc: '99.9% uptime with enterprise-grade security protecting every transaction.' },
+    { icon: Globe, title: 'Global Reach', desc: 'Connecting organizers, exhibitors and attendees across 50+ countries.' },
+    { icon: Users, title: 'Community First', desc: 'Built around the needs of every stakeholder in the event ecosystem.' },
+    { icon: Zap, title: 'Real-time Platform', desc: 'Live updates, instant booking confirmations and seamless communication.' },
+    { icon: Shield, title: 'Secure & Reliable', desc: '99.9% uptime with enterprise-grade security protecting every transaction.' },
   ]
 
   const team = [
-    { initials: 'ZA', name: 'Zia Aziz',     role: 'Founder & CEO'        },
-    { initials: 'SR', name: 'Sara Raza',      role: 'Head of Product'      },
-    { initials: 'AK', name: 'Ahmed Khan',     role: 'Lead Engineer'        },
-    { initials: 'FM', name: 'Fatima Malik',   role: 'Head of Partnerships' },
+    { initials: 'ZU', name: 'MUHAMMAD ZIA UDDIN', role: 'Group Lead', StudentId: "Student1538849" },
+    { initials: 'AR', name: 'ALINA RIAZ', role: 'Group Member', StudentId: "Student1531232" },
+    { initials: 'A', name: 'ASMA', role: 'Group Member', StudentId: "Student1538838" },
+    { initials: 'ZS', name: 'ZOHA SIDDIQUI', role: 'Group Member', StudentId: "Student1529403" },
+    { initials: 'MS', name: 'SYED MUHAMMAD SAAD', role: 'Group Member', StudentId: "Student1522571" },
+    { initials: 'DK', name: 'DANIYAL KHATTAK', role: 'Group Member', StudentId: "Student1525635" },
+    { initials: 'MS', name: 'MAIMOONA SHAHID', role: 'Group Member', StudentId: "Student1538845" },
   ]
 
   return (
@@ -26,9 +29,9 @@ const AboutPage = () => {
       <div className='bg-[#2C3E50] px-4 md:px-16 py-20 text-center relative overflow-hidden'>
         <div className='absolute inset-0 opacity-5 flex items-center justify-center'>
           <svg width="600" height="400" viewBox="0 0 600 400" fill="none">
-            <circle cx="300" cy="200" r="180" stroke="white" strokeWidth="1.5"/>
-            <ellipse cx="300" cy="200" rx="80" ry="180" stroke="white" strokeWidth="1"/>
-            <line x1="20" y1="200" x2="580" y2="200" stroke="white" strokeWidth="1"/>
+            <circle cx="300" cy="200" r="180" stroke="white" strokeWidth="1.5" />
+            <ellipse cx="300" cy="200" rx="80" ry="180" stroke="white" strokeWidth="1" />
+            <line x1="20" y1="200" x2="580" y2="200" stroke="white" strokeWidth="1" />
           </svg>
         </div>
         <span className='inline-block text-[#FFA641] text-xs font-bold tracking-widest
@@ -97,29 +100,42 @@ const AboutPage = () => {
       </div>
 
       {/* Team */}
-      <div className='px-4 md:px-16 py-16'>
+      <div className='px-4 md:px-8 py-16'>
         <div className='max-w-4xl mx-auto'>
           <p className='text-[#FFA641] text-xs font-bold tracking-widest uppercase mb-3 text-center'>
             The people behind EventSphere
           </p>
           <h2 className='text-3xl font-bold text-[#2C3E50] mb-10 text-center'>Meet the team</h2>
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-6'>
-            {team.map(({ initials, name, role }) => (
-              <div key={name} className='text-center'>
-                <div className='w-16 h-16 rounded-full bg-[#2C3E50] flex items-center
-                                justify-center text-[#FFA641] font-bold text-xl mx-auto mb-3'>
+          <div className='flex flex-wrap justify-center gap-6'>
+            {team.map(({ initials, name, role, StudentId }) => (
+           <div key={StudentId} className='text-center w-[160px]'>
+                <div
+                  className='w-16 h-16 rounded-full bg-[#2C3E50] flex items-center
+                 justify-center text-[#FFA641] font-bold text-xl mx-auto mb-3'
+                >
                   {initials}
                 </div>
+
                 <p className='font-bold text-[#2C3E50] text-sm'>{name}</p>
-                <p className='text-gray-400 text-xs mt-0.5'>{role}</p>
+
+                <p
+                  className={`text-xs mt-0.5 ${role === 'Group Lead'
+                      ? 'text-[#FFA641]'
+                      : 'text-gray-400'
+                    }`}
+                >
+                  {role}
+                </p>
+
+                <p className='text-gray-400 text-xs mt-0.5'>{StudentId}</p>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-     {/* ── Footer ── */}
-     <footer className='bg-[#1a2a38] px-16 pt-12 pb-6'>
+      {/* ── Footer ── */}
+      <footer className='bg-[#1a2a38] px-16 pt-12 pb-6'>
         <div className='w-full'>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-white/8'>
             <div>
@@ -150,7 +166,7 @@ const AboutPage = () => {
               {[
                 { label: 'About', path: '/about' },
                 { label: 'Blog', path: '/blog' },
-                { label: 'Contact', path: '/contact' },
+                { label: 'Contact', path: '/feedback' },
                 { label: 'Privacy Policy', path: '/privacy' },
               ].map(l => (
                 <p key={l.label}

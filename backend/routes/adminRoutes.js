@@ -6,7 +6,7 @@ import {
     getApplications, updateApplicationStatus, assignBooth,
     createSession, getSessions, updateSession, deleteSession,
     getAnalytics, generateBooths, getBooths,
-    getAdminMessages, getAdminConversation, sendAdminMessage, getFeedback, respondToFeedback , getAllUsers , updateUserRole, deleteUser , getExhibitorProfiles, updateExhibitorProfile
+    getAdminMessages, getAdminConversation, sendAdminMessage, getFeedback, respondToFeedback , getAllUsers , updateUserRole, deleteUser , getExhibitorProfiles, updateExhibitorProfile, getAllTestimonials, updateTestimonial, deleteTestimonial
 } from "../controllers/adminController.js"
 
 const router = express.Router()
@@ -45,5 +45,9 @@ router.delete("/users/:id",       deleteUser)
 
 router.get("/exhibitor-profiles",        getExhibitorProfiles)
 router.put("/exhibitor-profiles/:userId", updateExhibitorProfile)
+
+router.get("/testimonials",           getAllTestimonials)
+router.put("/testimonials/:id",       updateTestimonial)
+router.delete("/testimonials/:id",    deleteTestimonial)
 
 export default router

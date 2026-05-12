@@ -59,12 +59,12 @@ const Analytics = () => {
     const a = document.createElement('a'); a.href = url
     a.download = `analytics-${selectedExpo}.csv`; a.click()
   }
-  
+
   const exportPDF = () => {
     if (!data) return
     const doc = new jsPDF()
     const expo = expos.find(e => e._id === selectedExpo)
-  
+
     doc.setFontSize(18)
     doc.setTextColor(44, 62, 80)
     doc.text(`Analytics Report`, 14, 20)
@@ -72,7 +72,7 @@ const Analytics = () => {
     doc.setTextColor(100)
     doc.text(expo?.title || '', 14, 28)
     doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 35)
-  
+
     autoTable(doc, {
       startY: 45,
       head: [['Metric', 'Value']],
@@ -89,7 +89,7 @@ const Analytics = () => {
       ],
       headStyles: { fillColor: [44, 62, 80] },
     })
-  
+
     if (data.sessionPopularity.length > 0) {
       autoTable(doc, {
         startY: doc.lastAutoTable.finalY + 10,
@@ -98,10 +98,10 @@ const Analytics = () => {
         headStyles: { fillColor: [255, 166, 65], textColor: [44, 62, 80] },
       })
     }
-  
+
     doc.save(`analytics-${expo?.title || selectedExpo}.pdf`)
   }
-  
+
   const statCards = data ? [
     { label: 'Total Attendees', value: data.totalAttendees, icon: Users, color: 'bg-[#2C3E50]' },
     { label: 'Exhibitors', value: data.totalExhibitors, icon: Store, color: 'bg-[#FFA641]' },
@@ -114,16 +114,18 @@ const Analytics = () => {
   return (
     <div>
       {/* Header */}
-      <div className='flex items-center justify-between mb-6'>
+      <div className='flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4'>
         <div>
           <h2 className='text-xl font-bold text-[#2C3E50]'>Analytics</h2>
           <p className='text-gray-400 text-sm'>Real-time expo performance</p>
         </div>
+
         <select
           value={selectedExpo}
           onChange={e => setSelectedExpo(e.target.value)}
           className='h-10 px-3 rounded-lg border border-gray-200 bg-white
-                     text-[#2C3E50] text-sm outline-none focus:border-[#FFA641] transition-all'
+                           text-[#2C3E50] text-sm outline-none focus:border-[#FFA641]
+                           flex-1 md:flex-none' 
         >
           {expos.map(expo => (
             <option key={expo._id} value={expo._id}>{expo.title}</option>

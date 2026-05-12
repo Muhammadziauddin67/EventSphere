@@ -138,7 +138,7 @@ const BrowseEvents = () => {
         </div>
       </div>
 
-      <div className='px-16 py-8 flex-1'>
+      <div className='px-16 py-8 flex-1 min-h-screen'>
         {/* Category filters */}
         <div className='flex gap-2 mb-8 flex-wrap'>
           {categories.map(({ key, label, icon: Icon }) => (
@@ -178,53 +178,44 @@ const BrowseEvents = () => {
                                   cursor-pointer hover:border-[#FFA641] hover:-translate-y-0.5
                                   transition-all group'>
                     {/* Image area */}
-                    <div className='h-40 bg-[#2C3E50] relative overflow-hidden'>
-                      <div className='absolute inset-0 opacity-10 flex items-center justify-center'>
-                        {event.type === 'concert' && (
-                          <Music className='w-20 h-20 text-white' />
-                        )}
-                        {event.type === 'sports' && (
-                          <Trophy className='w-20 h-20 text-white' />
-                        )}
-                        {event.type === 'expo' && (
-                          <Building2 className='w-20 h-20 text-white' />
-                        )}
-                      </div>
-
-                      {/* Type badge */}
+                    <div className='h-40 relative overflow-hidden bg-[#2C3E50]'>
+                      {event.venueImage ? (
+                        <img src={event.venueImage} alt={event.title}
+                          className='w-full h-full object-cover' />
+                      ) : (
+                        <div className='w-full h-full flex items-center justify-center opacity-20'>
+                          {event.type === 'concert' && <Music className='w-20 h-20 text-white' />}
+                          {event.type === 'sports' && <Trophy className='w-20 h-20 text-white' />}
+                          {event.type === 'expo' && <Building2 className='w-20 h-20 text-white' />}
+                          {!event.type && <Building2 className='w-20 h-20 text-white' />}
+                        </div>
+                      )}
+                      {/* overlay gradient for readability */}
+                      {event.venueImage && (
+                        <div className='absolute inset-0 bg-gradient-to-t from-black/60 to-transparent' />
+                      )}
+                      {/* badges */}
                       <span className={`absolute top-3 left-3 text-[0.65rem] font-bold
-                                        px-2.5 py-1 rounded-full uppercase ${typeColors[event.type]}`}>
+                    px-2.5 py-1 rounded-full uppercase z-10 ${typeColors[event.type]}`}>
                         {event.type}
                       </span>
-
-                      {/* Bookmark button */}
-                      <button
-                        onClick={e => handleBookmark(e, event._id)}
+                      <button onClick={e => handleBookmark(e, event._id)}
                         className={`absolute top-3 right-3 w-7 h-7 rounded-full flex items-center
-                                    justify-center transition-colors
-                                    ${isBookmarked
-                            ? 'bg-[#FFA641] text-[#2C3E50]'
-                            : 'bg-white/20 text-white hover:bg-white/40'}`}>
+                      justify-center transition-colors z-10
+                      ${isBookmarked ? 'bg-[#FFA641] text-[#2C3E50]' : 'bg-white/20 text-white'}`}>
                         <Bookmark className='w-3.5 h-3.5' fill={isBookmarked ? 'currentColor' : 'none'} />
                       </button>
-
-                      {soldOut && (
-                        <div className='absolute inset-0 bg-black/50 flex items-center justify-center'>
-                          <span className='bg-red-500 text-white text-xs font-bold
-                                           px-3 py-1.5 rounded-full uppercase tracking-wide'>
-                            Sold Out
-                          </span>
-                        </div>
-                      )}
-
                       {event.artist && (
-                        <div className='absolute bottom-3 left-3'>
-                          <p className='text-white font-bold text-sm'>{event.artist}</p>
-                        </div>
+                        <p className='absolute bottom-3 left-3 text-white font-bold text-sm z-10'>{event.artist}</p>
                       )}
                       {event.team && (
-                        <div className='absolute bottom-3 left-3'>
-                          <p className='text-white font-bold text-sm'>{event.team}</p>
+                        <p className='absolute bottom-3 left-3 text-white font-bold text-sm z-10'>{event.team}</p>
+                      )}
+                      {soldOut && (
+                        <div className='absolute inset-0 bg-black/50 flex items-center justify-center z-10'>
+                          <span className='bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase'>
+                            Sold Out
+                          </span>
                         </div>
                       )}
                     </div>

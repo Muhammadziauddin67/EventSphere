@@ -1,12 +1,7 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
-const statusColors = {
-  available: 'bg-green-100 border-green-400 text-green-800 hover:scale-110 cursor-pointer',
-  reserved: 'bg-amber-100 border-amber-400 text-amber-800 cursor-default',
-  occupied: 'bg-[#2C3E50] border-[#1a2a38] text-[#FFA641] cursor-default',
-  selected: 'bg-[#FFA641] border-amber-600 text-[#2C3E50] scale-110 ring-2 ring-amber-300 cursor-pointer',
-}
+
 
 // Group booths into zones based on boothNumber prefix letter
 const groupByZone = (booths) => {
@@ -17,21 +12,98 @@ const groupByZone = (booths) => {
     return acc
   }, {})
 }
-
-const zoneLabels = {
-  A: 'Zone A',
-  B: 'Zone B',
-  C: 'Zone C',
-  D: 'Zone D',
-  E: 'Zone E',
-  F: 'Zone F',
-  G: 'Zone G',
-  H: 'Zone H',
-  I: 'Zone I',
-  J: 'Zone J',
+const getVenueConfig = (type) => {
+  switch (type) {
+    case 'concert':
+      return {
+        entrance: '🎵 Stage — Front of House',
+        zoneLabels: {
+          A: 'Floor GA — Standing',
+          B: 'Pit — Premium Standing',
+          C: 'Lower Bowl Left',
+          D: 'Lower Bowl Right',
+          E: 'Upper Bowl Left',
+          F: 'Upper Bowl Right',
+          G: 'VIP Box Left',
+          H: 'VIP Box Right',
+          I: 'Balcony Left',
+          J: 'Balcony Right',
+        },
+        zoneColors: {
+          A: 'bg-purple-100 border-purple-300 text-purple-700',
+          B: 'bg-pink-100 border-pink-300 text-pink-700',
+          C: 'bg-blue-100 border-blue-300 text-blue-700',
+          D: 'bg-blue-100 border-blue-300 text-blue-700',
+          E: 'bg-indigo-100 border-indigo-300 text-indigo-700',
+          F: 'bg-indigo-100 border-indigo-300 text-indigo-700',
+          G: 'bg-amber-100 border-amber-300 text-amber-700',
+          H: 'bg-amber-100 border-amber-300 text-amber-700',
+          I: 'bg-gray-100 border-gray-300 text-gray-600',
+          J: 'bg-gray-100 border-gray-300 text-gray-600',
+        }
+      }
+    case 'sports':
+      return {
+        entrance: '⚽ Playing Field / Court',
+        zoneLabels: {
+          A: 'Pitch Side — North',
+          B: 'Pitch Side — South',
+          C: 'East Stand — Lower',
+          D: 'West Stand — Lower',
+          E: 'East Stand — Upper',
+          F: 'West Stand — Upper',
+          G: 'VIP Executive Box',
+          H: 'Press & Media',
+          I: 'Family Stand',
+          J: 'Away Supporters',
+        },
+        zoneColors: {
+          A: 'bg-green-100 border-green-300 text-green-700',
+          B: 'bg-green-100 border-green-300 text-green-700',
+          C: 'bg-orange-100 border-orange-300 text-orange-700',
+          D: 'bg-orange-100 border-orange-300 text-orange-700',
+          E: 'bg-red-100 border-red-300 text-red-600',
+          F: 'bg-red-100 border-red-300 text-red-600',
+          G: 'bg-amber-100 border-amber-300 text-amber-700',
+          H: 'bg-gray-100 border-gray-300 text-gray-600',
+          I: 'bg-blue-100 border-blue-300 text-blue-600',
+          J: 'bg-yellow-100 border-yellow-300 text-yellow-700',
+        }
+      }
+    default: // expo / exhibition
+      return {
+        entrance: '★ Main Entrance / Registration ★',
+        zoneLabels: {
+          A: 'Hall A — Technology',
+          B: 'Hall B — Premium',
+          C: 'Hall C — Innovation',
+          D: 'Hall D — Startups',
+          E: 'Central Pavilion',
+          F: 'Hall F — Media',
+          G: 'Hall G — Industry',
+          H: 'Hall H — Research',
+          I: 'Hall I — Consumer',
+          J: 'Hall J — Global',
+        },
+        zoneColors: {
+          A: 'bg-green-100 border-green-400 text-green-800',
+          B: 'bg-amber-100 border-amber-400 text-amber-800',
+          C: 'bg-blue-100 border-blue-400 text-blue-800',
+          D: 'bg-purple-100 border-purple-400 text-purple-800',
+          E: 'bg-teal-100 border-teal-400 text-teal-800',
+          F: 'bg-red-100 border-red-400 text-red-700',
+          G: 'bg-indigo-100 border-indigo-400 text-indigo-800',
+          H: 'bg-pink-100 border-pink-400 text-pink-700',
+          I: 'bg-orange-100 border-orange-400 text-orange-700',
+          J: 'bg-cyan-100 border-cyan-400 text-cyan-800',
+        }
+      }
+  }
 }
 
-const FloorPlan = ({ expoId, mode = 'view', onBoothSelect }) => {
+
+
+const FloorPlan = ({ expoId, mode = 'view', onBoothSelect, eventType = 'expo' }) => {
   const [booths, setBooths] = useState([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
@@ -40,16 +112,35 @@ const FloorPlan = ({ expoId, mode = 'view', onBoothSelect }) => {
   const [cols, setCols] = useState(8)
   const [generating, setGenerating] = useState(false)
   const [tooltip, setTooltip] = useState(null)
+  const config = getVenueConfig(eventType)
+  const getBoothColor = (booth, isSelected) => {
+    if (isSelected)
+      return 'bg-[#FFA641] border-amber-600 text-[#2C3E50] scale-110 ring-2 ring-amber-300'
+  
+    if (booth.status === 'reserved')
+      return 'bg-amber-100 border-amber-400 text-amber-800'
+  
+    if (booth.status === 'occupied')
+      return 'bg-[#2C3E50] border-[#1a2a38] text-[#FFA641]'
+  
+    return (
+      config.zoneColors[booth.boothNumber?.[0]] ||
+      'bg-green-100 border-green-400 text-green-800'
+    )
+  }
   const token = localStorage.getItem('accessToken')
   const headers = { Authorization: `Bearer ${token}` }
+  
 
   // change the fetchBooths function in FloorPlan.jsx
   const fetchBooths = async () => {
     try {
       setLoading(true)
       const url = mode === 'view'
-        ? `http://localhost:8000/admin/booths/${expoId}`      // admin
-        : `http://localhost:8000/exhibitor/booths/${expoId}`  // exhibitor
+        ? `http://localhost:8000/admin/booths/${expoId}`
+        : mode === 'select'
+        ? `http://localhost:8000/exhibitor/booths/${expoId}`
+        : `http://localhost:8000/attendee/expos/${expoId}/floorplan`  // attendee
       const res = await axios.get(url, { headers })
       setBooths(res.data.data)
     } catch (e) { console.log(e) }
@@ -144,7 +235,7 @@ const FloorPlan = ({ expoId, mode = 'view', onBoothSelect }) => {
           {[
             { key: 'all', label: 'All' },
             { key: 'available', label: 'Available' },
-            ...zoneKeys.map(z => ({ key: z, label: zoneLabels[z] || `Hall ${z}` }))
+            ...zoneKeys.map(z => ({ key: z, label: config.zoneLabels[z] || `Hall ${z}` }))
           ].map(({ key, label }) => (
             <button key={key} onClick={() => setFilter(key)}
               className={`text-xs px-3 py-1.5 rounded-full border transition-colors
@@ -168,8 +259,8 @@ const FloorPlan = ({ expoId, mode = 'view', onBoothSelect }) => {
 
           {/* Stage */}
           <div className='bg-[#2C3E50] text-[#FFA641] text-xs font-bold text-center
-                          py-2 rounded-lg mb-4 tracking-widest uppercase'>
-            ★ Main Entrance / Registration ★
+                py-2 rounded-lg mb-4 tracking-widest uppercase'>
+            {config.entrance}
           </div>
 
           {/* Zones grid */}
@@ -178,7 +269,7 @@ const FloorPlan = ({ expoId, mode = 'view', onBoothSelect }) => {
               <div key={zone}
                 className='bg-white/70 rounded-xl p-3 border border-black/5'>
                 <p className='text-xs font-bold uppercase tracking-wider text-gray-400 mb-2'>
-                  {zoneLabels[zone] || `Hall ${zone}`}
+                  {config.zoneLabels[zone] || `Hall ${zone}`}
                 </p>
                 <div className='flex flex-wrap gap-1.5'>
                   {zones[zone]
@@ -195,7 +286,7 @@ const FloorPlan = ({ expoId, mode = 'view', onBoothSelect }) => {
                             : `Booth ${booth.boothNumber} — ${booth.status}`}
                           className={`w-10 h-10 rounded-lg border-2 text-[10px] font-bold
                                       transition-all duration-150
-                                      ${isSelected ? statusColors.selected : statusColors[booth.status]}
+                                      ${getBoothColor(booth, isSelected)}
                                       ${!visible ? 'opacity-20 pointer-events-none' : ''}`}
                         >
                           {booth.boothNumber}

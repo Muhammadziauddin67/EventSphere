@@ -1,18 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
-import { Send, Loader2 } from 'lucide-react'
+import { Send, Loader2, ArrowLeft } from 'lucide-react'
 import { getData } from '@/context/userContext'
 
 const AdminMessages = () => {
-  const { user }                          = getData()
+  const { user } = getData()
   const [conversations, setConversations] = useState([])
-  const [activeUser,    setActiveUser]    = useState(null)
-  const [messages,      setMessages]      = useState([])
-  const [newMsg,        setNewMsg]        = useState('')
-  const [sending,       setSending]       = useState(false)
-  const [unread,        setUnread]        = useState({})
+  const [activeUser, setActiveUser] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [newMsg, setNewMsg] = useState('')
+  const [sending, setSending] = useState(false)
+  const [unread, setUnread] = useState({})
   const bottomRef = useRef(null)
-  const token   = localStorage.getItem('accessToken')
+  const token = localStorage.getItem('accessToken')
   const headers = { Authorization: `Bearer ${token}` }
 
   const fetchMessages = async () => {
@@ -81,10 +81,10 @@ const AdminMessages = () => {
         )}
       </div>
 
-      <div className='bg-white rounded-2xl border border-gray-100 overflow-hidden flex h-[600px]'>
+      <div className='bg-white rounded-2xl border border-gray-100 overflow-hidden flex flex-col md:flex-row h-[calc(100vh-200px)] md:h-[600px]'>
 
         {/* Sidebar */}
-        <div className='w-72 border-r border-gray-100 flex flex-col flex-shrink-0'>
+        <div className={`w-full md:w-72 border-r border-gray-100 flex flex-col flex-shrink-0 ${activeUser ? 'hidden md:flex' : 'flex'}`}>
           <div className='px-4 py-3 border-b border-gray-100'>
             <p className='text-xs font-bold text-gray-400 uppercase tracking-wider'>Conversations</p>
           </div>
@@ -96,8 +96,8 @@ const AdminMessages = () => {
             ) : (
               conversations.map(({ user: other, lastMsg, time }) => (
                 <button key={other._id}
-                        onClick={() => setActiveUser(other)}
-                        className={`w-full text-left px-4 py-3 border-b border-gray-50
+                  onClick={() => setActiveUser(other)}
+                  className={`w-full text-left px-4 py-3 border-b border-gray-50
                                     hover:bg-gray-50 transition-colors
                                     ${activeUser?._id === other._id ? 'bg-[#FFA641]/10 border-l-2 border-l-[#FFA641]' : ''}`}>
                   <div className='flex items-center gap-2.5'>
@@ -148,8 +148,10 @@ const AdminMessages = () => {
           </div>
         ) : (
           <div className='flex-1 flex flex-col'>
-            {/* Header */}
             <div className='px-5 py-3 border-b border-gray-100 flex items-center gap-3'>
+              <button className='md:hidden text-[#FFA641]' onClick={() => setActiveUser(null)}>
+                <ArrowLeft className='w-5 h-5' />
+              </button>
               <div className='w-9 h-9 rounded-full bg-[#2C3E50] flex items-center
                               justify-center text-white font-bold text-sm'>
                 {activeUser.username?.[0]?.toUpperCase()}
@@ -171,15 +173,14 @@ const AdminMessages = () => {
                   const isMe = msg.senderId._id === user._id || msg.senderId === user._id
                   return (
                     <div key={msg._id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[70%] px-4 py-2.5 rounded-2xl text-sm
-                        ${isMe
+                      <div className={`max-w-[75%] md:max-w-[65%] px-4 py-2.5 rounded-2xl text-sm
+                 break-words word-break overflow-wrap-anywhere
+                       ${isMe
                           ? 'bg-[#2C3E50] text-white rounded-br-sm'
                           : 'bg-gray-100 text-[#2C3E50] rounded-bl-sm'}`}>
-                        <p>{msg.content}</p>
+                        <p className='break-words whitespace-pre-wrap'>{msg.content}</p>
                         <p className={`text-xs mt-1 ${isMe ? 'text-white/50' : 'text-gray-400'}`}>
-                          {new Date(msg.createdAt).toLocaleTimeString('en-US', {
-                            hour: '2-digit', minute: '2-digit'
-                          })}
+                          {new Date(msg.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
@@ -201,7 +202,7 @@ const AdminMessages = () => {
                            text-[#2C3E50] outline-none focus:border-[#FFA641] transition-all'
               />
               <button onClick={handleSend} disabled={sending || !newMsg.trim()}
-                      className='w-10 h-10 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-50
+                className='w-10 h-10 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-50
                                  text-[#2C3E50] rounded-lg flex items-center justify-center
                                  transition-colors flex-shrink-0'>
                 {sending

@@ -7,7 +7,26 @@ const empty = {
   expoId: '', title: '', speaker: '', topic: '',
   location: '', startTime: '', endTime: '', capacity: ''
 }
-
+const inputClass = `w-full h-10 px-3 rounded-lg border border-gray-200 bg-white
+text-[#2C3E50] text-sm outline-none focus:border-[#FFA641]
+focus:ring-2 focus:ring-[#FFA641]/20 transition-all`
+const handleDelete = async (id) => {
+  setDeleteId(id)
+  toast.message('Delete this session?', {
+    action: {
+      label: 'Delete',
+      onClick: async () => {
+        try {
+          await axios.delete(`http://localhost:8000/admin/sessions/${id}`, { headers })
+          toast.success('Session deleted')
+          setSessions(prev => prev.filter(s => s._id !== id))
+        } catch (error) {
+          toast.error('Failed to delete')
+        }
+      }
+    }
+  })
+}
 const ManageSchedule = () => {
   const [expos,     setExpos]     = useState([])
   const [sessions,  setSessions]  = useState([])
@@ -19,7 +38,7 @@ const ManageSchedule = () => {
   const [saving,    setSaving]    = useState(false)
   const token   = localStorage.getItem('accessToken')
   const headers = { Authorization: `Bearer ${token}` }
-
+  const [deleteId, setDeleteId] = useState(null)
   // fetch expos for dropdown
   useEffect(() => {
     const fetchExpos = async () => {
@@ -84,45 +103,56 @@ const ManageSchedule = () => {
   }
 
   const handleDelete = async (id) => {
-    if (!confirm('Delete this session?')) return
-    try {
-      await axios.delete(`http://localhost:8000/admin/sessions/${id}`, { headers })
-      toast.success('Session deleted')
-      setSessions(prev => prev.filter(s => s._id !== id))
-    } catch (error) { toast.error('Failed to delete') }
+    toast.message('Delete this session?', {
+      action: {
+        label: 'Delete',
+        onClick: async () => {
+          try {
+            await axios.delete(
+              `http://localhost:8000/admin/sessions/${id}`,
+              { headers }
+            )
+  
+            toast.success('Session deleted')
+            setSessions(prev => prev.filter(s => s._id !== id))
+  
+          } catch (error) {
+            console.log(error)
+            toast.error(
+              error.response?.data?.message || 'Failed to delete'
+            )
+          }
+        }
+      }
+    })
   }
 
   const formatTime = (dt) => dt ? new Date(dt).toLocaleString('en-US', {
     month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
   }) : '—'
 
-  const inputClass = `w-full h-10 px-3 rounded-lg border border-gray-200 bg-white
-    text-[#2C3E50] text-sm outline-none focus:border-[#FFA641]
-    focus:ring-2 focus:ring-[#FFA641]/20 transition-all`
 
   return (
     <div>
       {/* Header */}
-      <div className='flex items-center justify-between mb-6'>
+      <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6'>
         <div>
           <h2 className='text-xl font-bold text-[#2C3E50]'>Schedule</h2>
           <p className='text-gray-400 text-sm'>{sessions.length} sessions</p>
         </div>
-        <div className='flex items-center gap-3'>
+        <div className='flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto'>
           {/* Expo selector */}
           <select
             value={selectedExpo}
             onChange={e => setSelectedExpo(e.target.value)}
-            className='h-10 px-3 rounded-lg border border-gray-200 bg-white
-                       text-[#2C3E50] text-sm outline-none focus:border-[#FFA641] transition-all'
+           className='h-10 w-full sm:w-auto px-3 rounded-lg border border-gray-200 bg-white text-[#2C3E50] text-sm outline-none focus:border-[#FFA641] transition-all'
           >
             {expos.map(expo => (
               <option key={expo._id} value={expo._id}>{expo.title}</option>
             ))}
           </select>
           <button onClick={openCreate}
-                  className='flex items-center gap-2 bg-[#FFA641] hover:bg-[#ffb55a]
-                             text-[#2C3E50] font-bold text-sm px-4 py-2.5 rounded-lg transition-colors'>
+                  className='w-full sm:w-auto flex items-center justify-center gap-2 bg-[#FFA641] hover:bg-[#ffb55a] text-[#2C3E50] font-bold text-sm px-4 py-2.5 rounded-lg transition-colors'>
             <Plus className='w-4 h-4' /> Add Session
           </button>
         </div>
@@ -142,11 +172,10 @@ const ManageSchedule = () => {
         <div className='space-y-3'>
           {sessions.map(session => (
             <div key={session._id}
-                 className='bg-white rounded-xl border border-gray-100 p-5
-                            flex items-start justify-between gap-4'>
-              <div className='flex gap-4 items-start'>
+            className='bg-white rounded-xl border border-gray-100 p-4 sm:p-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between'>
+         <div className='flex flex-col sm:flex-row gap-3 sm:gap-4 items-start'>
                 {/* Time block */}
-                <div className='bg-[#2C3E50] rounded-lg px-3 py-2 text-center flex-shrink-0 min-w-[80px]'>
+                <div className='bg-[#2C3E50] rounded-lg px-3 py-2 text-center flex-shrink-0 min-w-[64px] sm:min-w-[80px]'>
                   <p className='text-[#FFA641] text-xs font-bold'>
                     {new Date(session.startTime).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </p>
@@ -170,7 +199,7 @@ const ManageSchedule = () => {
                 </div>
               </div>
 
-              <div className='flex gap-2 flex-shrink-0'>
+              <div className='flex gap-2 sm:flex-shrink-0 self-end sm:self-auto'>
                 <button onClick={() => openEdit(session)}
                         className='p-1.5 rounded-lg hover:bg-gray-100 text-gray-400
                                    hover:text-[#2C3E50] transition-colors'>
@@ -189,10 +218,10 @@ const ManageSchedule = () => {
 
       {/* Modal */}
       {showModal && (
-        <div className='fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4'>
+    <div className='fixed inset-0 bg-black/40 flex items-end sm:items-center justify-center z-50 px-2 sm:px-4'>
           <div style={{ fontFamily: "'Jost', sans-serif" }}
-               className='bg-white rounded-2xl p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto'>
-            <div className='flex items-center justify-between mb-6'>
+               className='bg-white rounded-2xl p-5 sm:p-8 w-full max-w-lg max-h-[90vh] overflow-y-auto'>
+            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6'>
               <h3 className='text-lg font-bold text-[#2C3E50]'>
                 {editing ? 'Edit Session' : 'Add Session'}
               </h3>

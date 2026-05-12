@@ -1,13 +1,14 @@
-import { Expo }        from "../models/expoModel.js"
-import { Booth }       from "../models/boothModel.js"
+import { Expo } from "../models/expoModel.js"
+import { Booth } from "../models/boothModel.js"
 import { Application } from "../models/applicationModel.js"
 import { Session } from "../models/sessionModel.js"
 import { Analytics } from "../models/analyticsModel.js"
 import { Message } from "../models/messageModel.js"
 import { Feedback } from "../models/feedbackModel.js"
 import { ExhibitorProfile } from "../models/exhibitorProfileManagement.js"
-import { User }  from "../models/userModels.js"
-
+import { User } from "../models/userModels.js"
+import { Testimonial } from "../models/testimonialModel.js"
+import mongoose from "mongoose"
 
 export const createExpo = async (req, res) => {
     try {
@@ -51,10 +52,19 @@ export const getApplications = async (req, res) => {
         const applications = await Application.find()
             .populate("exhibitorId", "username email")
             .populate("expoId", "title")
+            .populate("boothId", "boothNumber status expoId")
             .sort({ createdAt: -1 })
-        return res.status(200).json({ success: true, data: applications })
+
+        return res.status(200).json({
+            success: true,
+            data: applications
+        })
+
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }
 
@@ -74,16 +84,67 @@ export const updateApplicationStatus = async (req, res) => {
 export const assignBooth = async (req, res) => {
     try {
         const { boothId } = req.body
-        const application = await Application.findById(req.params.id)
-        if (!application) return res.status(404).json({ success: false, message: "Application not found" })
 
-        await Booth.findByIdAndUpdate(boothId, {
-            assignedTo: application.exhibitorId,
-            status: "occupied"
+        const application = await Application.findById(req.params.id)
+        if (!application) {
+            return res.status(404).json({
+                success: false,
+                message: "Application not found"
+            })
+        }
+
+        const booth = await Booth.findById(boothId)
+        if (!booth) {
+            return res.status(404).json({
+                success: false,
+                message: "Booth not found"
+            })
+        }
+
+        if (booth.status !== "available") {
+            return res.status(400).json({
+                success: false,
+                message: "Booth already occupied"
+            })
+        }
+
+        // ==============================
+        // 1. FREE OLD BOOTH (IMPORTANT)
+        // ==============================
+        if (application.boothId) {
+            await Booth.findByIdAndUpdate(application.boothId, {
+                assignedTo: null,
+                status: "available"
+            })
+        }
+
+        // ==============================
+        // 2. ASSIGN NEW BOOTH
+        // ==============================
+        booth.assignedTo = application.exhibitorId
+        booth.status = "occupied"
+        await booth.save()
+
+        // ==============================
+        // 3. UPDATE APPLICATION
+        // ==============================
+        application.boothId = booth._id
+        await application.save()
+
+        return res.status(200).json({
+            success: true,
+            message: "Booth assigned successfully",
+            data: {
+                boothId: booth._id,
+                applicationId: application._id
+            }
         })
-        return res.status(200).json({ success: true, message: "Booth assigned successfully" })
+
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        return res.status(500).json({
+            success: false,
+            message: error.message
+        })
     }
 }
 export const createSession = async (req, res) => {
@@ -126,10 +187,41 @@ export const updateSession = async (req, res) => {
 // DELETE SESSION
 export const deleteSession = async (req, res) => {
     try {
-        await Session.findByIdAndDelete(req.params.id)
-        return res.status(200).json({ success: true, message: "Session deleted" })
+        const { id } = req.params
+
+        // 1. Validate ID (THIS FIXES MOST 500 ERRORS)
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid session ID"
+            })
+        }
+
+        // 2. Check if session exists
+        const session = await Session.findById(id)
+
+        if (!session) {
+            return res.status(404).json({
+                success: false,
+                message: "Session not found"
+            })
+        }
+
+        // 3. Delete safely
+        await Session.findByIdAndDelete(id)
+
+        return res.status(200).json({
+            success: true,
+            message: "Session deleted successfully"
+        })
+
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message })
+        console.error("DELETE SESSION ERROR:", error)
+
+        return res.status(500).json({
+            success: false,
+            message: "Server error while deleting session"
+        })
     }
 }
 
@@ -164,25 +256,25 @@ export const getAnalytics = async (req, res) => {
         ])
 
         const boothStats = {
-            total:     booths.length,
+            total: booths.length,
             available: booths.filter(b => b.status === "available").length,
-            reserved:  booths.filter(b => b.status === "reserved").length,
-            occupied:  booths.filter(b => b.status === "occupied").length,
+            reserved: booths.filter(b => b.status === "reserved").length,
+            occupied: booths.filter(b => b.status === "occupied").length,
         }
 
         const sessionPopularity = sessions.map(s => ({
-            title:         s.title,
+            title: s.title,
             registrations: s.attendees.length,
         })).sort((a, b) => b.registrations - a.registrations)
 
         return res.status(200).json({
             success: true,
             data: {
-                totalAttendees:      totalAttendees.length,
-                totalExhibitors:     totalExhibitors,
-                totalSessions:       totalSessions,
+                totalAttendees: totalAttendees.length,
+                totalExhibitors: totalExhibitors,
+                totalSessions: totalSessions,
                 applications: {
-                    pending:  pendingApplications,
+                    pending: pendingApplications,
                     approved: approvedApplications,
                     rejected: rejectedApplications,
                 },
@@ -237,9 +329,9 @@ export const getAdminMessages = async (req, res) => {
         const messages = await Message.find({
             $or: [{ senderId: req.userId }, { receiverId: req.userId }]
         })
-        .populate("senderId",   "username email role")
-        .populate("receiverId", "username email role")
-        .sort({ createdAt: -1 })
+            .populate("senderId", "username email role")
+            .populate("receiverId", "username email role")
+            .sort({ createdAt: -1 })
         return res.status(200).json({ success: true, data: messages })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
@@ -250,13 +342,13 @@ export const getAdminConversation = async (req, res) => {
     try {
         const messages = await Message.find({
             $or: [
-                { senderId: req.userId,        receiverId: req.params.userId },
+                { senderId: req.userId, receiverId: req.params.userId },
                 { senderId: req.params.userId, receiverId: req.userId }
             ]
         })
-        .populate("senderId",   "username role")
-        .populate("receiverId", "username role")
-        .sort({ createdAt: 1 })
+            .populate("senderId", "username role")
+            .populate("receiverId", "username role")
+            .sort({ createdAt: 1 })
         await Message.updateMany(
             { senderId: req.params.userId, receiverId: req.userId, isRead: false },
             { isRead: true }
@@ -360,6 +452,37 @@ export const updateExhibitorProfile = async (req, res) => {
             { new: true, upsert: true }
         )
         return res.status(200).json({ success: true, message: "Profile updated", data: profile })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getAllTestimonials = async (req, res) => {
+    try {
+        const testimonials = await Testimonial.find()
+            .populate("userId", "username email")
+            .sort({ createdAt: -1 })
+        return res.status(200).json({ success: true, data: testimonials })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const updateTestimonial = async (req, res) => {
+    try {
+        const testimonial = await Testimonial.findByIdAndUpdate(
+            req.params.id, req.body, { new: true }
+        )
+        return res.status(200).json({ success: true, message: "Updated", data: testimonial })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const deleteTestimonial = async (req, res) => {
+    try {
+        await Testimonial.findByIdAndDelete(req.params.id)
+        return res.status(200).json({ success: true, message: "Deleted" })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
     }

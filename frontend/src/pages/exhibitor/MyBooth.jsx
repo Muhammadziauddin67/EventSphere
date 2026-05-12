@@ -97,7 +97,7 @@ const MyBooth = () => {
           ) : (
             <div className='bg-white rounded-2xl border border-gray-100 p-6'>
               {/* Booth info */}
-              <div className='flex items-center gap-4 mb-6 pb-6 border-b border-gray-100'>
+              <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6 pb-6 border-b border-gray-100'>
                 <div className='w-16 h-16 rounded-xl bg-[#2C3E50] flex items-center
                                 justify-center text-[#FFA641] font-bold text-lg'>
                   {booth.boothNumber}

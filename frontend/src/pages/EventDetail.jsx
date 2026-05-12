@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { CalendarDays, MapPin, ArrowLeft, Bookmark, Clock, Users, CheckCircle, Minus, Plus, Search } from 'lucide-react'
 import { toast } from 'sonner'
 import { getData } from '@/context/userContext'
+import FloorPlan from '../pages/admin/FloorPlan'
 
 const tabs = ['Overview', 'Tickets', 'Sessions', 'Exhibitors', 'Floor Plan']
 
@@ -110,8 +111,16 @@ const EventDetail = () => {
   }, {})
 
   const zoneLabels = {
-    A: 'Hall A', B: 'Hall B — Premium', C: 'Hall C', D: 'Hall D',
-    E: 'Central Pavilion', F: 'Hall F', G: 'Hall G', H: 'Hall H', I: 'Hall I', J: 'Hall J'
+    A: 'Zone A',
+    B: 'Zone B',
+    C: 'Zone C',
+    D: 'Zone D',
+    E: 'Zone E',
+    F: 'Zone F',
+    G: 'Zone G',
+    H: 'Zone H',
+    I: 'Zone I',
+    J: 'Zone J',
   }
   const filteredExhibitors = exhibitors.filter(app => {
     const matchSearch = !exhibitorSearch ||
@@ -133,7 +142,6 @@ const EventDetail = () => {
 
   const zones = groupByZone(booths)
   const zoneKeys = Object.keys(zones).sort()
-
   if (loading) return (
     <div className='flex items-center justify-center h-screen'>
       <div className='w-8 h-8 border-4 border-[#FFA641] border-t-transparent rounded-full animate-spin' />
@@ -148,7 +156,7 @@ const EventDetail = () => {
   const totalCap = expo.tickets?.reduce((a, t) => a + (t.capacity || 0), 0) || 0
   const isSoldOut = expo.tickets?.length > 0 && expo.tickets.every(t => t.sold >= t.capacity)
 
- 
+
   return (
     <div style={{ fontFamily: "'Jost', sans-serif" }} className='bg-[#f7f6f2] min-h-screen'>
 
@@ -237,7 +245,7 @@ const EventDetail = () => {
         </div>
       </div>
       <div className='px-4 md:px-4 py-6'>
-   
+
         {/* Tabs */}
         <div className='overflow-x-auto mb-6'>
           <div className="w-full overflow-x-auto">
@@ -372,7 +380,7 @@ const EventDetail = () => {
 
           {/* ── Tickets ── */}
           {activeTab === 'Tickets' && (
-            <div className='max-w-2xl w-full space-y-4'>
+            <div className='max-w-2xl w-full space-y-4 min-h-screen'>
               {sortedTiers.length === 0 ? (
                 <div className='bg-white rounded-xl border border-gray-100 py-16 text-center'>
                   <p className='text-gray-400 text-sm'>No tickets available for this event.</p>
@@ -464,20 +472,21 @@ const EventDetail = () => {
 
           {/* ── Sessions ── */}
           {activeTab === 'Sessions' && (
-            <div className='bg-white rounded-xl border border-gray-100 p-4 md:p-5
-            flex flex-col sm:flex-row items-start justify-between gap-4'>
+            <div className='bg-white rounded-xl border border-gray-100 md:p-5 min-h-[250px] flex flex-col sm:flex-row items-start justify-between gap-4 mb-8'>
               {sessions.length === 0 ? (
                 <div className="w-full flex flex-col sm:flex-row items-start justify-between gap-4">
-                  <div className="w-full bg-white rounded-xl border border-gray-100 py-16 min-h-[300px] flex items-center justify-center">
+                  <div className="w-full min-h-[400px] flex items-center justify-center">
                     <p className="text-gray-400 text-sm">No sessions scheduled yet.</p>
                   </div>
                 </div>
               ) : sessions.map(session => {
                 const isFull = session.capacity && session.attendees?.length >= session.capacity
                 return (
+
                   <div key={session._id}
-                    className='bg-white rounded-xl border border-gray-100 p-5
-                                flex items-start justify-between gap-4'>
+
+                    className='bg-white rounded-xl border border-gray-100 p-6
+                                flex  justify-between gap-4'>
                     <div className='flex gap-4 items-start'>
                       <div className='bg-[#2C3E50] rounded-lg px-3 py-2.5 text-center flex-shrink-0 min-w-[72px]'>
                         <p className='text-[#FFA641] text-[10px] font-bold'>
@@ -535,137 +544,119 @@ const EventDetail = () => {
           {/* ── Exhibitors ── */}
           {activeTab === 'Exhibitors' && (
             <div>
+
               {exhibitors.length === 0 ? (
-                <div className='bg-white rounded-xl border border-gray-100 py-16 text-center min-h-[300px] flex items-center justify-center'>
+                <div className='bg-white rounded-xl border border-gray-100 py-16 text-center min-h-[650px] flex items-center justify-center mb-8'>
                   <p className='text-gray-400 text-sm'>No approved exhibitors yet.</p>
                 </div>
               ) : (
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                  <div className='flex gap-3 mb-5 flex-wrap'>
-                    <div className='relative flex-1 min-w-[200px]'>
+                <>
+                  {/* Filters */}
+                  <div className='flex flex-col md:flex-row gap-3 mb-5'>
+
+                    <div className='relative flex-1'>
                       <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
-                      <input type='text' placeholder='Search exhibitors...'
+
+                      <input
+                        type='text'
+                        placeholder='Search exhibitors...'
                         value={exhibitorSearch}
                         onChange={e => setExhibitorSearch(e.target.value)}
                         className='w-full h-10 pl-9 pr-4 rounded-lg border border-gray-200 bg-white
-                      text-[#2C3E50] text-sm outline-none focus:border-[#FFA641] transition-all' />
+              text-[#2C3E50] text-sm outline-none focus:border-[#FFA641] transition-all'
+                      />
                     </div>
-                    <select value={exhibitorCategory}
+
+                    <select
+                      value={exhibitorCategory}
                       onChange={e => setExhibitorCategory(e.target.value)}
-                      className='h-10 px-3 rounded-lg border border-gray-200 bg-white text-[#2C3E50]
-                     text-sm outline-none focus:border-[#FFA641] transition-all'>
+                      className='h-10 px-3 rounded-lg border border-gray-200 bg-white
+            text-[#2C3E50] text-sm outline-none focus:border-[#FFA641]
+            transition-all md:w-56'
+                    >
                       <option value=''>All categories</option>
+
                       {exhibitorCategories.map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
                       ))}
                     </select>
+
                   </div>
-                  {filteredExhibitors.map(app => (
-                    <div key={app._id}
-                      onClick={() => navigate(`/exhibitor-detail/${app._id}`)}
-                      className='bg-white rounded-xl border border-gray-100 p-5
-                             hover:border-[#FFA641] transition-colors cursor-pointer'>
-                      <div className='flex items-center gap-3 mb-3'>
-                        <div className='w-10 h-10 rounded-xl bg-[#2C3E50] flex items-center
-                                      justify-center text-[#FFA641] font-bold text-sm flex-shrink-0'>
-                          {app.company?.[0]?.toUpperCase()}
+
+                  {/* Grid */}
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-8'>
+
+                    {filteredExhibitors.map(app => (
+                      <div
+                        key={app._id}
+                        onClick={() => navigate(`/exhibitor-detail/${app._id}`)}
+                        className='bg-white rounded-xl border border-gray-100 p-5
+                             hover:border-[#FFA641] transition-colors cursor-pointer'
+                      >
+
+                        <div className='flex items-center gap-3 mb-3'>
+                          <div className='w-10 h-10 rounded-xl bg-[#2C3E50]
+                flex items-center justify-center text-[#FFA641]
+                font-bold text-sm flex-shrink-0'>
+                            {app.company?.[0]?.toUpperCase()}
+                          </div>
+
+                          <div className='min-w-0'>
+                            <p className='font-bold text-[#2C3E50] text-sm truncate'>
+                              {app.company}
+                            </p>
+
+                            {app.boothId && (
+                              <p className='text-xs text-gray-400'>
+                                Booth {app.boothId.boothNumber}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <p className='font-bold text-[#2C3E50] text-sm'>{app.company}</p>
-                          {app.boothId && (
-                            <p className='text-xs text-gray-400'>Booth {app.boothId.boothNumber}</p>
-                          )}
-                        </div>
+
+                        {app.products && (
+                          <p className='text-xs text-gray-400 mb-2 line-clamp-2'>
+                            {app.products}
+                          </p>
+                        )}
+
+                        {app.description && (
+                          <p className='text-xs text-gray-300 leading-relaxed line-clamp-2'>
+                            {app.description}
+                          </p>
+                        )}
+
                       </div>
-                      {app.products && (
-                        <p className='text-xs text-gray-400 mb-2'>{app.products}</p>
-                      )}
-                      {app.description && (
-                        <p className='text-xs text-gray-300 leading-relaxed line-clamp-2'>
-                          {app.description}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    ))}
+
+                  </div>
+                </>
               )}
+
             </div>
           )}
 
           {/* ── Floor Plan ── */}
           {activeTab === 'Floor Plan' && (
-            <div className='bg-white rounded-2xl border border-gray-100 p-6'>
-              <h3 className='font-bold text-[#2C3E50] mb-1'>Venue Floor Plan</h3>
-              <p className='text-gray-400 text-xs mb-5'>
-                View booth/seat locations. Hover over a booth to see who's exhibiting there.
-              </p>
-              {booths.length === 0 ? (
-                <div className='text-center py-12 text-gray-400 text-sm bg-gray-50 rounded-xl'>
-                  Floor plan not available yet.
-                </div>
-              ) : (
-                <>
-                  <div className='flex gap-4 mb-4 text-xs'>
-                    {[
-                      { label: 'Available', cls: 'bg-green-100 border-green-300' },
-                      { label: 'Reserved', cls: 'bg-amber-100 border-amber-300' },
-                      { label: 'Occupied', cls: 'bg-[#2C3E50]' },
-                    ].map(({ label, cls }) => (
-                      <span key={label} className='flex items-center gap-1.5 text-gray-500'>
-                        <span className={`w-3 h-3 rounded border ${cls} inline-block`} />
-                        {label}
-                      </span>
-                    ))}
-                  </div>
-                  <div className='bg-[#f0efe9] rounded-2xl p-4 overflow-auto'>
-                    <div className='bg-[#2C3E50] text-[#FFA641] text-xs font-bold text-center
-                                  py-2 rounded-lg mb-4 tracking-widest uppercase'>
-                      ★ Main Entrance / Registration ★
-                    </div>
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'>
-                      {zoneKeys.map(zone => (
-                        <div key={zone} className='bg-white/70 rounded-xl p-3 border border-black/5'>
-                          <p className='text-xs font-bold uppercase tracking-wider text-gray-400 mb-2'>
-                            {zoneLabels[zone] || `Hall ${zone}`}
-                          </p>
-                          <div className='flex flex-wrap gap-1.5'>
-                            {zones[zone]
-                              .sort((a, b) => (a.position?.x ?? 0) - (b.position?.x ?? 0))
-                              .map(booth => (
-                                <div key={booth._id}
-                                  title={booth.assignedTo
-                                    ? `${booth.assignedTo.username} — Booth ${booth.boothNumber}`
-                                    : `Booth ${booth.boothNumber} — ${booth.status}`}
-                                  className={`w-10 h-10 rounded-lg border-2 text-[10px] font-bold
-                                               flex items-center justify-center
-                                               ${statusColors[booth.status] || statusColors.available}`}>
-                                  {booth.boothNumber}
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className='mt-3 bg-gray-50 rounded-xl px-4 py-3 flex gap-4 text-xs text-gray-400'>
-                    <span>Total: <strong className='text-[#2C3E50]'>{booths.length}</strong></span>
-                    <span>Available: <strong className='text-green-600'>{booths.filter(b => b.status === 'available').length}</strong></span>
-                    <span>Reserved: <strong className='text-amber-600'>{booths.filter(b => b.status === 'reserved').length}</strong></span>
-                    <span>Occupied: <strong className='text-[#2C3E50]'>{booths.filter(b => b.status === 'occupied').length}</strong></span>
-                  </div>
-                </>
-              )}
+            <div className='bg-white rounded-xl border border-gray-100 p-6'>
+              <FloorPlan
+                expoId={id}
+                mode='attendee'
+                eventType={expo.type}
+              />
             </div>
           )}
-          
+
         </div>
-        
-      
+
+
       </div>
-      
-    
+
+
       {/* ── Footer ── */}
-      <footer className='bg-[#1a2a38] px-16 pt-12 pb-6'>
+      <footer className='bg-[#1a2a38] px-16 pt-12 pb-6 mt-5'>
         <div className='w-full'>
           <div className='grid grid-cols-1 md:grid-cols-3 gap-8 pb-8 border-b border-white/8'>
             <div>
@@ -696,7 +687,7 @@ const EventDetail = () => {
               {[
                 { label: 'About', path: '/about' },
                 { label: 'Blog', path: '/blog' },
-                { label: 'Contact', path: '/contact' },
+                { label: 'Contact', path: '/feedback' },
                 { label: 'Privacy Policy', path: '/privacy' },
               ].map(l => (
                 <p key={l.label}

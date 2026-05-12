@@ -5,14 +5,15 @@ import { toast } from 'sonner'
 import FloorPlan from '../admin/FloorPlan'
 
 const ApplyForExpo = () => {
-  const [expos,         setExpos]         = useState([])
-  const [selectedExpo,  setSelectedExpo]  = useState('')
+  const [expos, setExpos] = useState([])
+  const [selectedExpo, setSelectedExpo] = useState('')
   const [selectedBooth, setSelectedBooth] = useState(null)
-  const [showFloor,     setShowFloor]     = useState(false)
-  const [isLoading,     setIsLoading]     = useState(false)
-  const [submitted,     setSubmitted]     = useState(false)
+  const [showFloor, setShowFloor] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [selectedExpoData, setSelectedExpoData] = useState(null)
   const [form, setForm] = useState({ company: '', description: '', products: '' })
-  const token   = localStorage.getItem('accessToken')
+  const token = localStorage.getItem('accessToken')
   const headers = { Authorization: `Bearer ${token}` }
 
   useEffect(() => {
@@ -31,11 +32,11 @@ const ApplyForExpo = () => {
     try {
       setIsLoading(true)
       await axios.post('http://localhost:8000/exhibitor/apply', {
-        expoId:    selectedExpo,
-        company:   form.company,
+        expoId: selectedExpo,
+        company: form.company,
         description: form.description,
-        products:  form.products,
-        boothId:   selectedBooth?._id || null,
+        products: form.products,
+        boothId: selectedBooth?._id || null,
       }, { headers })
       setSubmitted(true)
       toast.success('Application submitted successfully!')
@@ -75,8 +76,14 @@ const ApplyForExpo = () => {
         <div>
           <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>Select Expo</label>
           <select value={selectedExpo}
-                  onChange={e => { setSelectedExpo(e.target.value); setSelectedBooth(null); setShowFloor(false) }}
-                  className={inputClass}>
+            onChange={e => {
+              const expo = expos.find(ex => ex._id === e.target.value)
+              setSelectedExpo(e.target.value)
+              setSelectedExpoData(expo || null)
+              setSelectedBooth(null)
+              setShowFloor(false)
+            }}
+            className={inputClass}>
             <option value=''>Choose an expo...</option>
             {expos.map(expo => (
               <option key={expo._id} value={expo._id}>
@@ -90,8 +97,8 @@ const ApplyForExpo = () => {
         <div>
           <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>Company Name</label>
           <input type='text' placeholder='Your company name' value={form.company}
-                 onChange={e => setForm(p => ({ ...p, company: e.target.value }))}
-                 className={inputClass} />
+            onChange={e => setForm(p => ({ ...p, company: e.target.value }))}
+            className={inputClass} />
         </div>
 
         <div>
@@ -99,52 +106,55 @@ const ApplyForExpo = () => {
             Products / Services
           </label>
           <input type='text' placeholder='e.g. AI Software, Cloud Solutions'
-                 value={form.products}
-                 onChange={e => setForm(p => ({ ...p, products: e.target.value }))}
-                 className={inputClass} />
+            value={form.products}
+            onChange={e => setForm(p => ({ ...p, products: e.target.value }))}
+            className={inputClass} />
         </div>
 
         <div>
           <label className='block text-sm font-semibold text-[#2C3E50] mb-1.5'>Description</label>
           <textarea rows={3} placeholder='Tell the organizer about your company...'
-                    value={form.description}
-                    onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
-                    className={`${inputClass} h-auto py-3 resize-none`} />
+            value={form.description}
+            onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
+            className={`${inputClass} h-auto py-3 resize-none`} />
         </div>
 
         {/* Booth selection */}
         {selectedExpo && (
           <div>
-            <div className='flex items-center justify-between mb-3'>
+            <div className='flex items-center justify-between mb-2'>
               <label className='text-sm font-semibold text-[#2C3E50]'>
-                Select a Booth{' '}
-                <span className='text-gray-400 font-normal'>(optional)</span>
+                Booth <span className='text-gray-400 font-normal'>(optional)</span>
               </label>
               <button onClick={() => setShowFloor(!showFloor)}
-                      className='text-xs text-[#FFA641] font-semibold hover:underline'>
-                {showFloor ? 'Hide floor plan' : 'View floor plan →'}
+                className='text-xs text-[#FFA641] font-semibold hover:underline'>
+                {showFloor ? 'Hide ↑' : 'Pick a booth →'}
               </button>
             </div>
 
             {selectedBooth && (
               <div className='flex items-center justify-between bg-[#FFA641]/10 border
-                              border-[#FFA641]/30 rounded-lg px-4 py-2.5 mb-3'>
+                      border-[#FFA641]/30 rounded-lg px-4 py-2 mb-2'>
                 <span className='text-sm font-semibold text-[#2C3E50]'>
                   ✓ Booth {selectedBooth.boothNumber} selected
                 </span>
                 <button onClick={() => setSelectedBooth(null)}
-                        className='text-xs text-gray-400 hover:text-red-500 transition-colors'>
+                  className='text-xs text-gray-400 hover:text-red-500 transition-colors'>
                   Remove
                 </button>
               </div>
             )}
 
             {showFloor && (
-              <div className='border border-gray-100 rounded-xl p-4 bg-gray-50'>
+              <div className='border border-gray-100 rounded-xl p-4 bg-gray-50 mt-2'>
                 <FloorPlan
                   expoId={selectedExpo}
                   mode='select'
-                  onBoothSelect={setSelectedBooth}
+                  eventType={selectedExpoData?.type || 'expo'}
+                  onBoothSelect={(booth) => {
+                    setSelectedBooth(booth)
+                    if (booth) setShowFloor(false)  // auto-collapse after selection
+                  }}
                 />
               </div>
             )}
@@ -152,7 +162,7 @@ const ApplyForExpo = () => {
         )}
 
         <button onClick={handleSubmit} disabled={isLoading}
-                className='w-full h-11 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-60
+          className='w-full h-11 bg-[#FFA641] hover:bg-[#ffb55a] disabled:opacity-60
                            text-[#2C3E50] font-bold text-sm rounded-lg
                            flex items-center justify-center gap-2 transition-colors'>
           {isLoading

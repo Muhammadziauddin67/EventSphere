@@ -42,7 +42,7 @@ const ExhibitorDashboard = () => {
         <h2 className='text-2xl font-bold text-[#2C3E50]'>{user?.username}</h2>
       </div>
 
-      <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+      <div className='grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4'>
         {stats.map(({ label, value, icon: Icon, color }) => (
           <div key={label} className='bg-white rounded-xl p-5 border border-gray-100'>
             <div className='flex items-center justify-between mb-3'>

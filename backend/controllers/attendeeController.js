@@ -9,6 +9,7 @@ import { sendTicketConfirmation } from "../emailVerify/ticketConfirmMail.js"
 import { User } from "../models/userModels.js"
 import { ExhibitorProfile } from "../models/exhibitorProfileManagement.js"
 import { Message } from "../models/messageModel.js"
+import { Testimonial } from "../models/testimonialModel.js"
 
 // ── Browse ────────────────────────────────────────────────────────────────
 export const getPublishedExpos = async (req, res) => {
@@ -353,6 +354,34 @@ export const getChatMessages = async (req, res) => {
             { isRead: true }
         )
         return res.status(200).json({ success: true, data: messages })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const submitTestimonial = async (req, res) => {
+    try {
+        const { quote, role, showOn } = req.body
+        if (!quote) return res.status(400).json({ success: false, message: "Quote required" })
+        const testimonial = await Testimonial.create({
+            userId: req.userId, quote, role, showOn: showOn || "home"
+        })
+        return res.status(201).json({ success: true, message: "Testimonial submitted for review!", data: testimonial })
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+export const getApprovedTestimonials = async (req, res) => {
+    try {
+        const { page } = req.query
+        const filter = { approved: true }
+        if (page === "home")  filter.showOn = { $in: ["home", "both"] }
+        if (page === "about") filter.showOn = { $in: ["about", "both"] }
+        const testimonials = await Testimonial.find(filter)
+            .populate("userId", "username")
+            .sort({ createdAt: -1 })
+        return res.status(200).json({ success: true, data: testimonials })
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message })
     }

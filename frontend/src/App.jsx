@@ -42,6 +42,8 @@ import ChatPage from './pages/ChatPage'
 import ManageExhibitorProfiles from './pages/admin/ManageExhibitorProfiles'
 import FeedbackHub from './pages/admin/FeedbackHub'
 import ManageUsers from './pages/admin/ManageUsers'
+import ManageTestimonials from './pages/admin/ManageTestimonials'
+import CookieConsent from './components/ui/CookieConsent'
 
 const router = createBrowserRouter([
   { path: '*', element: <NotFound /> },
@@ -118,6 +120,7 @@ const router = createBrowserRouter([
       { path: 'users', element: <ManageUsers /> },
       { path: 'analytics', element: <Analytics /> },
       { path: 'messages', element: <AdminMessages /> },
+      { path: 'testimonials', element: <ManageTestimonials /> },
     ]
   },
   {
@@ -137,6 +140,7 @@ const App = () => {
   return (
     <div>
       <RouterProvider router={router} />
+      <CookieConsent />
     </div>
   )
 }

@@ -59,12 +59,12 @@ const FeedbackHub = () => {
 
   return (
     <div>
-      <div className='flex items-center justify-between mb-6'>
+ <div className='flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3'>
         <div>
           <h2 className='text-xl font-bold text-[#2C3E50]'>Feedback Hub</h2>
           <p className='text-gray-400 text-sm'>{feedback.length} total submissions</p>
         </div>
-        <div className='flex gap-1 bg-white border border-gray-100 rounded-lg p-1'>
+        <div className='flex gap-1 bg-white border border-gray-100 rounded-lg p-1 flex-wrap'>
           {['all', 'open', 'reviewed', 'resolved'].map(f => (
             <button key={f} onClick={() => setFilter(f)}
                     className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize transition-colors

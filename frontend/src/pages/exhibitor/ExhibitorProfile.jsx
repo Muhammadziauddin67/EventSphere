@@ -72,7 +72,7 @@ const ExhibitorProfile = () => {
 
       {/* Account info */}
       <div className='bg-white rounded-2xl border border-gray-100 p-6'>
-        <div className='flex items-center gap-4 mb-4 pb-4 border-b border-gray-100'>
+        <div className='flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-4 pb-4 border-b border-gray-100'>
           <div className='w-14 h-14 rounded-full bg-[#FFA641] flex items-center
                           justify-center text-[#2C3E50] font-bold text-xl'>
             {user?.username?.[0]?.toUpperCase()}
