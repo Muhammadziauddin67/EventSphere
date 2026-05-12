@@ -47,8 +47,8 @@ Create a file named `.env` inside the `/backend` folder and add the required cre
 > ⚠️ The server will not connect to the database without this file.
 ### Start Backend Server
 ```bash
-def node server.js
-def```
+node server.js
+```
 ### Expected Output
 ```bash
 Server is listening on Port number: 8000
