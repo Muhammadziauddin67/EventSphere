@@ -73,10 +73,16 @@ npm run dev
 ## ⚙️ Final Workflow Summary
 ### Terminal 1 (Backend)
 ```bash
-db backendnode server.js```
+db backend
+node server.js
+```
+
 ### Terminal 2 (Frontend)
 ```bash
-db frontend npm run dev```
+db frontend
+npm run dev
+```
+
 ---
 ## 🔐 Best Practices & Security
 * Keep `.env` inside `/backend` only  
@@ -85,7 +91,6 @@ db frontend npm run dev```
 * Ensure backend is running before frontend  
 ---
 ## 🚀 Roadmap
-* [ ] Complete Frontend (Shadcn Integration)  
-* [ ] Integration with Google Maps API  
-* [ ] Real-time event notifications  
-* [ ] Floor plans Integration
+* [ ] Testing
+* [ ] Documentation
+* [ ] Github Completion
