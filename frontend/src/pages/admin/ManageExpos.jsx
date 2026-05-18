@@ -87,6 +87,7 @@ const ManageExpos = () => {
 
       {/* Table */}
       <div className='bg-white rounded-xl border border-gray-100 overflow-hidden'>
+      <div className='overflow-x-auto'>
         {expos.length === 0 ? (
           <p className='text-gray-400 text-sm text-center py-16'>No expos yet — create your first one.</p>
         ) : (
@@ -145,6 +146,7 @@ const ManageExpos = () => {
             </tbody>
           </table>
         )}
+        </div>
       </div>
 
       {/* Create/Edit Modal */}

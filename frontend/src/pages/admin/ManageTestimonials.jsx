@@ -106,7 +106,7 @@ const ManageTestimonials = () => {
                       className='text-xs border border-gray-200 rounded-lg px-2 py-1 outline-none focus:border-[#FFA641] w-40' />
                   </div>
                 </div>
-                <div className='flex gap-2 flex-shrink-0'>
+                <div className='flex gap-2 flex-shrink-0 flex-col sm:flex-row items-stretch sm:items-center'>
                   <button
                     onClick={() => handleApprove(item._id, !item.approved, item.showOn)}
                     className={`p-2 rounded-lg transition-colors text-xs font-bold flex items-center gap-1
@@ -116,9 +116,12 @@ const ManageTestimonials = () => {
                     <CheckCircle className='w-4 h-4' />
                     {item.approved ? 'Unapprove' : 'Approve'}
                   </button>
-                  <button onClick={() => handleDelete(item._id)}
-                    className='p-2 rounded-lg hover:bg-red-50 text-gray-400
-                                     hover:text-red-500 transition-colors'>
+                  <button
+                    onClick={() => handleDelete(item._id)}
+                    className='p-2 sm:p-2.5 rounded-lg hover:bg-red-50 text-gray-400
+             hover:text-red-500 transition-colors
+             flex items-center justify-center min-w-10 min-h-10'
+                  >
                     <Trash2 className='w-4 h-4' />
                   </button>
                 </div>
